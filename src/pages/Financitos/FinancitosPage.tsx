@@ -108,13 +108,6 @@ export const FinancitosPage = () => {
         onInvestmentChange={updateInvestments}
       />
 
-      {/* Save to Google Drive Button */}
-      <div className="pb-6">
-        <button className="w-full btn-primary flex items-center justify-center space-x-2">
-          <span>💾</span>
-          <span>Salvar no Google Drive</span>
-        </button>
-      </div>
     </div>
   )
 }
