@@ -38,13 +38,19 @@ export const useCurrencyMask = (initialValue: number | string = 0): UseCurrencyM
     if (typeof value === 'string') {
       // If it's already a masked string, return as is
       if (value.startsWith('R$')) return value
-      // If it's a numeric string, convert to number
+      // If it's empty or "0", return empty
+      if (!value || value === '0') return ''
+      // If it's a numeric string, treat it as the actual value (not cents)
       const num = parseFloat(value.replace(',', '.')) || 0
-      return formatCurrencyMask((num * 100).toString())
+      if (num === 0) return ''
+      // Convert the value to cents for formatting
+      const cents = Math.round(num * 100)
+      return formatCurrencyMask(cents.toString())
     }
-    // If it's a number, format it
+    // If it's a number, treat it as the actual value (not cents)
     if (value === 0) return ''
-    return formatCurrencyMask((value * 100).toString())
+    const cents = Math.round(value * 100)
+    return formatCurrencyMask(cents.toString())
   }
 
   const [displayValue, setDisplayValue] = useState<string>(initializeValue(initialValue))
