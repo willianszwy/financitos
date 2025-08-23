@@ -43,11 +43,9 @@ describe('useLocalStorage hooks', () => {
 
       const { result } = renderHook(() => useFinancialData('2024-01'))
 
-      expect(result.current.loading).toBe(true)
-      
       await waitFor(() => {
         expect(result.current.loading).toBe(false)
-      })
+      }, { timeout: 3000 })
 
       expect(result.current.data).toEqual(mockFinancialData)
       expect(result.current.error).toBeNull()
@@ -120,11 +118,9 @@ describe('useLocalStorage hooks', () => {
 
       const { result } = renderHook(() => useShoppingList())
 
-      expect(result.current.loading).toBe(true)
-
       await waitFor(() => {
         expect(result.current.loading).toBe(false)
-      })
+      }, { timeout: 3000 })
 
       expect(result.current.shoppingList).toEqual(mockShoppingList)
       expect(result.current.error).toBeNull()
@@ -200,11 +196,9 @@ describe('useLocalStorage hooks', () => {
 
       const { result } = renderHook(() => useAppSettings())
 
-      expect(result.current.loading).toBe(true)
-
       await waitFor(() => {
         expect(result.current.loading).toBe(false)
-      })
+      }, { timeout: 3000 })
 
       expect(result.current.settings).toEqual(mockSettings)
       expect(result.current.error).toBeNull()

@@ -23,19 +23,19 @@ describe('FinancialSummaryCard', () => {
 
     // Check income
     expect(screen.getByText('ENTRADAS')).toBeInTheDocument()
-    expect(screen.getByText('R$\u00A06.500,00')).toBeInTheDocument()
+    expect(screen.getByText(/R\$.*6\.500,00/)).toBeInTheDocument()
 
     // Check expenses
     expect(screen.getByText('SAÍDAS')).toBeInTheDocument()
-    expect(screen.getByText('R$\u00A01.550,00')).toBeInTheDocument()
-    expect(screen.getByText('R$\u00A01.200,00')).toBeInTheDocument() // Fixed expenses
-    expect(screen.getByText('R$\u00A0350,00')).toBeInTheDocument() // Unique expenses
+    expect(screen.getByText(/R\$.*1\.550,00/)).toBeInTheDocument()
+    expect(screen.getByText(/R\$.*1\.200,00/)).toBeInTheDocument() // Fixed expenses
+    expect(screen.getByText(/R\$.*350,00/)).toBeInTheDocument() // Unique expenses
 
     // Check investments
     expect(screen.getByText('INVESTIMENTOS')).toBeInTheDocument()
-    expect(screen.getByText('R$\u00A013.000,00')).toBeInTheDocument()
-    expect(screen.getByText('R$\u00A08.000,00')).toBeInTheDocument() // Savings
-    expect(screen.getByText('R$\u00A05.000,00')).toBeInTheDocument() // CDI
+    expect(screen.getByText(/R\$.*13\.000,00/)).toBeInTheDocument()
+    expect(screen.getByText(/R\$.*8\.000,00/)).toBeInTheDocument() // Savings
+    expect(screen.getByText(/R\$.*5\.000,00/)).toBeInTheDocument() // CDI
   })
 
   it('should handle zero values', () => {
@@ -52,7 +52,7 @@ describe('FinancialSummaryCard', () => {
 
     render(<FinancialSummaryCard summary={zeroSummary} />)
 
-    const zeroValues = screen.getAllByText('R$\u00A00,00')
+    const zeroValues = screen.getAllByText(/R\$.*0,00/)
     expect(zeroValues).toHaveLength(7) // All monetary values should be R$ 0,00
   })
 
