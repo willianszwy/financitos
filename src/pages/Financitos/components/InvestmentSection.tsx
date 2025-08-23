@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, TrendingUp, Edit2 } from 'lucide-react'
+import { Plus, TrendingUp, Edit2, Info } from 'lucide-react'
 import { useForm, Controller } from 'react-hook-form'
 import { Investment } from '@/types'
 import { formatCurrency, formatPercentage } from '@/utils'
@@ -7,6 +7,7 @@ import { generateId } from '@/utils/helpers'
 import { calculateInvestmentGrowth, calculateInvestmentProjection } from '@/utils/calculations'
 import { CurrencyInput } from '@/components/common/CurrencyInput'
 import { EditInvestmentModal } from '@/components/modals/EditInvestmentModal'
+import { useInterestRates } from '@/hooks/useInterestRates'
 
 interface InvestmentSectionProps {
   investments: Investment[]
@@ -23,7 +24,9 @@ interface InvestmentFormData {
 export const InvestmentSection = ({ investments, onInvestmentChange }: InvestmentSectionProps) => {
   const [isAdding, setIsAdding] = useState(false)
   const [editingInvestment, setEditingInvestment] = useState<Investment | null>(null)
-  const { register, handleSubmit, reset, control, formState: { errors } } = useForm<InvestmentFormData>({
+  const { rates } = useInterestRates(false) // Don't auto-fetch to keep it simple
+  
+  const { register, handleSubmit, reset, control, watch, setValue, formState: { errors } } = useForm<InvestmentFormData>({
     defaultValues: {
       type: 'Poupança',
       bank: '',
@@ -31,6 +34,27 @@ export const InvestmentSection = ({ investments, onInvestmentChange }: Investmen
       rate: ''
     }
   })
+
+  const selectedType = watch('type')
+
+  // Suggest rate based on investment type
+  const getSuggestedRate = (type: 'Poupança' | 'CDI') => {
+    if (type === 'CDI' && rates.cdi) {
+      return rates.cdi.value.toString()
+    }
+    if (type === 'Poupança' && rates.selic) {
+      // Poupança is typically around 70% of SELIC
+      return (rates.selic.value * 0.7).toFixed(2)
+    }
+    return ''
+  }
+
+  const fillSuggestedRate = () => {
+    const suggested = getSuggestedRate(selectedType)
+    if (suggested) {
+      setValue('rate', suggested)
+    }
+  }
 
   const onSubmit = (data: InvestmentFormData) => {
     const currentValue = typeof data.currentValue === 'string' 
@@ -231,12 +255,28 @@ export const InvestmentSection = ({ investments, onInvestmentChange }: Investmen
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Taxa (%)
               </label>
-              <input
-                type="text"
-                {...register('rate', { required: 'Taxa é obrigatória' })}
-                className="input-field"
-                placeholder="0,5"
-              />
+              <div className="flex space-x-2">
+                <input
+                  type="text"
+                  {...register('rate', { required: 'Taxa é obrigatória' })}
+                  className="input-field flex-1"
+                  placeholder="0,5"
+                />
+                <button
+                  type="button"
+                  onClick={fillSuggestedRate}
+                  className="px-3 py-2 text-xs bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors flex items-center space-x-1"
+                  title={`Usar taxa sugerida para ${selectedType}`}
+                >
+                  <Info className="h-3 w-3" />
+                  <span>Auto</span>
+                </button>
+              </div>
+              {getSuggestedRate(selectedType) && (
+                <p className="text-blue-600 text-xs mt-1">
+                  Taxa sugerida para {selectedType}: {getSuggestedRate(selectedType)}%
+                </p>
+              )}
               {errors.rate && (
                 <p className="text-red-600 text-sm mt-1">{errors.rate.message}</p>
               )}
