@@ -24,7 +24,7 @@ interface InvestmentFormData {
 export const InvestmentSection = ({ investments, onInvestmentChange }: InvestmentSectionProps) => {
   const [isAdding, setIsAdding] = useState(false)
   const [editingInvestment, setEditingInvestment] = useState<Investment | null>(null)
-  const { rates } = useInterestRates(false) // Don't auto-fetch to keep it simple
+  const { rates } = useInterestRates(true) // Auto-fetch rates for the Auto button
   
   const { register, handleSubmit, reset, control, watch, setValue, formState: { errors } } = useForm<InvestmentFormData>({
     defaultValues: {

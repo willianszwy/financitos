@@ -1,9 +1,10 @@
 import { useEffect } from 'react'
 import { useForm, Controller } from 'react-hook-form'
-import { X } from 'lucide-react'
+import { X, Info } from 'lucide-react'
 import { Investment } from '@/types'
 import { CurrencyInput } from '@/components/common/CurrencyInput'
 import { calculateInvestmentGrowth, calculateInvestmentProjection } from '@/utils/calculations'
+import { useInterestRates } from '@/hooks/useInterestRates'
 
 interface EditInvestmentModalProps {
   investment: Investment | null
@@ -21,7 +22,29 @@ interface InvestmentFormData {
 }
 
 export const EditInvestmentModal = ({ investment, investments, isOpen, onClose, onSave }: EditInvestmentModalProps) => {
-  const { register, handleSubmit, reset, control, formState: { errors } } = useForm<InvestmentFormData>()
+  const { register, handleSubmit, reset, control, watch, setValue, formState: { errors } } = useForm<InvestmentFormData>()
+  const { rates } = useInterestRates(true)
+  
+  const selectedType = watch('type')
+
+  // Suggest rate based on investment type
+  const getSuggestedRate = (type: 'Poupança' | 'CDI') => {
+    if (type === 'CDI' && rates.cdi) {
+      return rates.cdi.value.toString()
+    }
+    if (type === 'Poupança' && rates.selic) {
+      // Poupança is typically around 70% of SELIC
+      return (rates.selic.value * 0.7).toFixed(2)
+    }
+    return ''
+  }
+
+  const fillSuggestedRate = () => {
+    const suggested = getSuggestedRate(selectedType)
+    if (suggested) {
+      setValue('rate', suggested)
+    }
+  }
 
   useEffect(() => {
     if (investment && isOpen) {
@@ -141,18 +164,34 @@ export const EditInvestmentModal = ({ investment, investments, isOpen, onClose, 
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Taxa (%)
               </label>
-              <input
-                type="text"
-                {...register('rate', { 
-                  required: 'Taxa é obrigatória',
-                  pattern: {
-                    value: /^\d+([.,]\d+)?$/,
-                    message: 'Digite um número válido'
-                  }
-                })}
-                className="input-field"
-                placeholder="0,5"
-              />
+              <div className="flex space-x-2">
+                <input
+                  type="text"
+                  {...register('rate', { 
+                    required: 'Taxa é obrigatória',
+                    pattern: {
+                      value: /^\d+([.,]\d+)?$/,
+                      message: 'Digite um número válido'
+                    }
+                  })}
+                  className="input-field flex-1"
+                  placeholder="0,5"
+                />
+                <button
+                  type="button"
+                  onClick={fillSuggestedRate}
+                  className="px-3 py-2 text-xs bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors flex items-center space-x-1"
+                  title={`Usar taxa sugerida para ${selectedType}`}
+                >
+                  <Info className="h-3 w-3" />
+                  <span>Auto</span>
+                </button>
+              </div>
+              {getSuggestedRate(selectedType) && (
+                <p className="text-blue-600 text-xs mt-1">
+                  Taxa sugerida para {selectedType}: {getSuggestedRate(selectedType)}%
+                </p>
+              )}
               {errors.rate && (
                 <p className="text-red-600 text-sm mt-1">{errors.rate.message}</p>
               )}
