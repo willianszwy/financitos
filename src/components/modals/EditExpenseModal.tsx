@@ -3,6 +3,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { X } from 'lucide-react'
 import { Expense } from '@/types'
 import { CurrencyInput } from '@/components/common/CurrencyInput'
+import { ReceiptUpload } from '@/components/common/ReceiptUpload'
 
 interface EditExpenseModalProps {
   expense: Expense | null
@@ -25,6 +26,9 @@ export const EditExpenseModal = ({ expense, isOpen, onClose, onSave }: EditExpen
   const { register, handleSubmit, reset, control, watch, formState: { errors } } = useForm<ExpenseFormData>()
   
   const status = watch('status')
+  const description = watch('description')
+  const amount = watch('amount')
+  const dueDate = watch('dueDate')
 
   useEffect(() => {
     if (expense && isOpen) {
@@ -178,6 +182,12 @@ export const EditExpenseModal = ({ expense, isOpen, onClose, onSave }: EditExpen
               )}
             </div>
           </div>
+
+          <ReceiptUpload
+            expenseDescription={description}
+            expenseAmount={amount ? parseFloat(amount.replace(/[^\d.,]/g, '').replace(',', '.')) : undefined}
+            expenseDate={dueDate}
+          />
 
           <div className="flex space-x-2 pt-4">
             <button

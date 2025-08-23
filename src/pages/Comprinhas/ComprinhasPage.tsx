@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { Plus, ExternalLink, Calendar, DollarSign, ShoppingCart, Loader2 } from 'lucide-react'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { ShoppingItem, Priority, PRIORITY_EMOJIS, PRIORITY_COLORS } from '@/types'
 import { formatCurrency, formatDate, getTodayISO } from '@/utils'
 import { generateId, classNames } from '@/utils/helpers'
 import { useShoppingList } from '@/hooks/useLocalStorage'
+import { useCurrencyMask } from '@/hooks/useCurrencyMask'
 
 interface ComprinhasPageProps {}
 
@@ -19,8 +20,9 @@ interface ShoppingFormData {
 export const ComprinhasPage = ({}: ComprinhasPageProps) => {
   const { shoppingList, loading, error, updateItems } = useShoppingList()
   const [isAdding, setIsAdding] = useState(false)
+  const currencyMask = useCurrencyMask()
   
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<ShoppingFormData>({
+  const { register, handleSubmit, reset, control, watch, formState: { errors } } = useForm<ShoppingFormData>({
     defaultValues: {
       description: '',
       estimatedPrice: '',
@@ -30,11 +32,13 @@ export const ComprinhasPage = ({}: ComprinhasPageProps) => {
     }
   })
 
+  const selectedPriority = watch('priority')
+
   const onSubmit = (data: ShoppingFormData) => {
     const newItem: ShoppingItem = {
       id: generateId(),
       description: data.description,
-      estimatedPrice: data.estimatedPrice ? parseFloat(data.estimatedPrice.replace(/[^\d.,]/g, '').replace(',', '.')) : undefined,
+      estimatedPrice: currencyMask.numericValue || undefined,
       priority: data.priority,
       deadline: data.deadline || undefined,
       productLink: data.productLink || undefined,
@@ -45,6 +49,7 @@ export const ComprinhasPage = ({}: ComprinhasPageProps) => {
 
     updateItems([...shoppingList.items, newItem])
     reset()
+    currencyMask.setValue(0)
     setIsAdding(false)
   }
 
@@ -147,6 +152,7 @@ export const ComprinhasPage = ({}: ComprinhasPageProps) => {
               onClick={() => {
                 setIsAdding(false)
                 reset()
+                currencyMask.setValue(0)
               }}
               className="text-gray-500 hover:text-gray-700 text-xl"
             >
@@ -176,7 +182,8 @@ export const ComprinhasPage = ({}: ComprinhasPageProps) => {
               </label>
               <input
                 type="text"
-                {...register('estimatedPrice')}
+                value={currencyMask.displayValue}
+                onChange={currencyMask.onChange}
                 className="input-field"
                 placeholder="R$ 0,00"
               />
@@ -195,11 +202,19 @@ export const ComprinhasPage = ({}: ComprinhasPageProps) => {
                       value={priority}
                       className="sr-only"
                     />
-                    <div className="flex items-center space-x-2">
+                    <div className={classNames(
+                      'flex items-center space-x-2 p-2 rounded-lg transition-colors w-full',
+                      selectedPriority === priority 
+                        ? 'bg-blue-50 border-2 border-blue-200' 
+                        : 'hover:bg-gray-50 border-2 border-transparent'
+                    )}>
                       <span className="text-lg">{PRIORITY_EMOJIS[priority]}</span>
                       <span className="font-medium" style={{ color: PRIORITY_COLORS[priority] }}>
                         {priority}
                       </span>
+                      {selectedPriority === priority && (
+                        <span className="ml-auto text-blue-600">✓</span>
+                      )}
                     </div>
                   </label>
                 ))}
@@ -235,6 +250,7 @@ export const ComprinhasPage = ({}: ComprinhasPageProps) => {
                 onClick={() => {
                   setIsAdding(false)
                   reset()
+                  currencyMask.setValue(0)
                 }}
                 className="flex-1 btn-secondary"
               >

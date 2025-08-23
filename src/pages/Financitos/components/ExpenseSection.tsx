@@ -5,6 +5,7 @@ import { Expense } from '@/types'
 import { formatCurrency, formatDate, getTodayISO } from '@/utils'
 import { generateId } from '@/utils/helpers'
 import { CurrencyInput } from '@/components/common/CurrencyInput'
+import { ReceiptUpload } from '@/components/common/ReceiptUpload'
 import { EditExpenseModal } from '@/components/modals/EditExpenseModal'
 
 interface ExpenseSectionProps {
@@ -38,6 +39,9 @@ export const ExpenseSection = ({ expenses, onExpenseChange }: ExpenseSectionProp
   })
 
   const status = watch('status')
+  const description = watch('description')
+  const amount = watch('amount')
+  const dueDate = watch('dueDate')
 
   const onSubmit = (data: ExpenseFormData) => {
     const newExpense: Expense = {
@@ -209,15 +213,11 @@ export const ExpenseSection = ({ expenses, onExpenseChange }: ExpenseSectionProp
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Comprovante
-            </label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center text-gray-500 hover:border-gray-400 transition-colors cursor-pointer">
-              <Paperclip className="h-6 w-6 mx-auto mb-2" />
-              <p className="text-sm">Arraste aqui ou clique para fazer upload</p>
-            </div>
-          </div>
+          <ReceiptUpload
+            expenseDescription={description}
+            expenseAmount={amount ? parseFloat(amount.replace(/[^\d.,]/g, '').replace(',', '.')) : undefined}
+            expenseDate={dueDate}
+          />
 
           <div className="flex space-x-2">
             <button
