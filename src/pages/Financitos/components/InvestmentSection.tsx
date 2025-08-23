@@ -1,10 +1,12 @@
 import { useState } from 'react'
-import { Plus, TrendingUp } from 'lucide-react'
-import { useForm } from 'react-hook-form'
+import { Plus, TrendingUp, Edit2 } from 'lucide-react'
+import { useForm, Controller } from 'react-hook-form'
 import { Investment } from '@/types'
 import { formatCurrency, formatPercentage } from '@/utils'
 import { generateId } from '@/utils/helpers'
 import { calculateInvestmentGrowth, calculateInvestmentProjection } from '@/utils/calculations'
+import { CurrencyInput } from '@/components/common/CurrencyInput'
+import { EditInvestmentModal } from '@/components/modals/EditInvestmentModal'
 
 interface InvestmentSectionProps {
   investments: Investment[]
@@ -20,7 +22,8 @@ interface InvestmentFormData {
 
 export const InvestmentSection = ({ investments, onInvestmentChange }: InvestmentSectionProps) => {
   const [isAdding, setIsAdding] = useState(false)
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<InvestmentFormData>({
+  const [editingInvestment, setEditingInvestment] = useState<Investment | null>(null)
+  const { register, handleSubmit, reset, control, formState: { errors } } = useForm<InvestmentFormData>({
     defaultValues: {
       type: 'Poupança',
       bank: '',
@@ -30,8 +33,10 @@ export const InvestmentSection = ({ investments, onInvestmentChange }: Investmen
   })
 
   const onSubmit = (data: InvestmentFormData) => {
-    const currentValue = parseFloat(data.currentValue.replace(/[^\d.,]/g, '').replace(',', '.'))
-    const rate = parseFloat(data.rate.replace(/[^\d.,]/g, '').replace(',', '.'))
+    const currentValue = typeof data.currentValue === 'string' 
+      ? parseFloat(data.currentValue.replace(/[^\d.,]/g, '').replace(',', '.')) || 0
+      : data.currentValue
+    const rate = parseFloat(data.rate.replace(/[^\d.,]/g, '').replace(',', '.')) || 0
     
     // Find previous investment of same type for growth calculation
     const previousInvestment = investments.find(inv => inv.type === data.type && inv.bank === data.bank)
@@ -59,6 +64,16 @@ export const InvestmentSection = ({ investments, onInvestmentChange }: Investmen
 
   const removeInvestment = (id: string) => {
     onInvestmentChange(investments.filter(item => item.id !== id))
+  }
+
+  const editInvestment = (investmentToEdit: Investment) => {
+    setEditingInvestment(investmentToEdit)
+  }
+
+  const saveEditedInvestment = (updatedInvestment: Investment) => {
+    onInvestmentChange(investments.map(item => 
+      item.id === updatedInvestment.id ? updatedInvestment : item
+    ))
   }
 
   const groupedInvestments = investments.reduce((acc, investment) => {
@@ -96,12 +111,21 @@ export const InvestmentSection = ({ investments, onInvestmentChange }: Investmen
                       {formatCurrency(investment.currentValue)}
                     </div>
                   </div>
-                  <button
-                    onClick={() => removeInvestment(investment.id)}
-                    className="text-red-600 hover:text-red-800 text-sm"
-                  >
-                    ✕
-                  </button>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => editInvestment(investment)}
+                      className="text-blue-600 hover:text-blue-800 text-sm p-1 hover:bg-blue-100 rounded"
+                      title="Editar investimento"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => removeInvestment(investment.id)}
+                      className="text-red-600 hover:text-red-800 text-sm"
+                    >
+                      ✕
+                    </button>
+                  </div>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4 text-sm">
@@ -171,11 +195,18 @@ export const InvestmentSection = ({ investments, onInvestmentChange }: Investmen
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Valor Atual
               </label>
-              <input
-                type="text"
-                {...register('currentValue', { required: 'Valor é obrigatório' })}
-                className="input-field"
-                placeholder="R$ 0,00"
+              <Controller
+                name="currentValue"
+                control={control}
+                rules={{ required: 'Valor é obrigatório' }}
+                render={({ field }) => (
+                  <CurrencyInput
+                    value={field.value}
+                    onChange={(_, numericValue) => {
+                      field.onChange(numericValue.toString())
+                    }}
+                  />
+                )}
               />
               {errors.currentValue && (
                 <p className="text-red-600 text-sm mt-1">{errors.currentValue.message}</p>
@@ -215,6 +246,15 @@ export const InvestmentSection = ({ investments, onInvestmentChange }: Investmen
           </div>
         </form>
       )}
+
+      {/* Edit Modal */}
+      <EditInvestmentModal
+        investment={editingInvestment}
+        investments={investments}
+        isOpen={!!editingInvestment}
+        onClose={() => setEditingInvestment(null)}
+        onSave={saveEditedInvestment}
+      />
     </div>
   )
 }

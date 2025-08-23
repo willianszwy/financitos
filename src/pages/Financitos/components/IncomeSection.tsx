@@ -1,9 +1,11 @@
 import { useState } from 'react'
-import { Plus } from 'lucide-react'
-import { useForm } from 'react-hook-form'
+import { Plus, Edit2 } from 'lucide-react'
+import { useForm, Controller } from 'react-hook-form'
 import { Income } from '@/types'
 import { formatCurrency, formatDate, getTodayISO } from '@/utils'
 import { generateId } from '@/utils/helpers'
+import { CurrencyInput } from '@/components/common/CurrencyInput'
+import { EditIncomeModal } from '@/components/modals/EditIncomeModal'
 
 interface IncomeSectionProps {
   income: Income[]
@@ -18,7 +20,8 @@ interface IncomeFormData {
 
 export const IncomeSection = ({ income, onIncomeChange }: IncomeSectionProps) => {
   const [isAdding, setIsAdding] = useState(false)
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<IncomeFormData>({
+  const [editingIncome, setEditingIncome] = useState<Income | null>(null)
+  const { register, handleSubmit, reset, control, formState: { errors } } = useForm<IncomeFormData>({
     defaultValues: {
       source: '',
       date: getTodayISO(),
@@ -31,7 +34,9 @@ export const IncomeSection = ({ income, onIncomeChange }: IncomeSectionProps) =>
       id: generateId(),
       source: data.source,
       date: data.date,
-      amount: parseFloat(data.amount.replace(/[^\d.,]/g, '').replace(',', '.')),
+      amount: typeof data.amount === 'string' 
+        ? parseFloat(data.amount.replace(/[^\d.,]/g, '').replace(',', '.')) || 0
+        : data.amount,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     }
@@ -43,6 +48,16 @@ export const IncomeSection = ({ income, onIncomeChange }: IncomeSectionProps) =>
 
   const removeIncome = (id: string) => {
     onIncomeChange(income.filter(item => item.id !== id))
+  }
+
+  const editIncome = (incomeToEdit: Income) => {
+    setEditingIncome(incomeToEdit)
+  }
+
+  const saveEditedIncome = (updatedIncome: Income) => {
+    onIncomeChange(income.map(item => 
+      item.id === updatedIncome.id ? updatedIncome : item
+    ))
   }
 
   return (
@@ -98,11 +113,18 @@ export const IncomeSection = ({ income, onIncomeChange }: IncomeSectionProps) =>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Valor
             </label>
-            <input
-              type="text"
-              {...register('amount', { required: 'Valor é obrigatório' })}
-              className="input-field"
-              placeholder="R$ 0,00"
+            <Controller
+              name="amount"
+              control={control}
+              rules={{ required: 'Valor é obrigatório' }}
+              render={({ field }) => (
+                <CurrencyInput
+                  value={field.value}
+                  onChange={(_, numericValue) => {
+                    field.onChange(numericValue.toString())
+                  }}
+                />
+              )}
             />
             {errors.amount && (
               <p className="text-red-600 text-sm mt-1">{errors.amount.message}</p>
@@ -145,6 +167,13 @@ export const IncomeSection = ({ income, onIncomeChange }: IncomeSectionProps) =>
                   {formatCurrency(item.amount)}
                 </span>
                 <button
+                  onClick={() => editIncome(item)}
+                  className="text-blue-600 hover:text-blue-800 text-sm p-1 hover:bg-blue-100 rounded"
+                  title="Editar entrada"
+                >
+                  <Edit2 className="h-4 w-4" />
+                </button>
+                <button
                   onClick={() => removeIncome(item.id)}
                   className="text-red-600 hover:text-red-800 text-sm"
                 >
@@ -155,6 +184,14 @@ export const IncomeSection = ({ income, onIncomeChange }: IncomeSectionProps) =>
           ))}
         </div>
       )}
+
+      {/* Edit Modal */}
+      <EditIncomeModal
+        income={editingIncome}
+        isOpen={!!editingIncome}
+        onClose={() => setEditingIncome(null)}
+        onSave={saveEditedIncome}
+      />
     </div>
   )
 }

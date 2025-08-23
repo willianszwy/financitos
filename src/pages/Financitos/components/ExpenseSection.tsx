@@ -1,9 +1,11 @@
 import { useState } from 'react'
-import { Plus, Paperclip } from 'lucide-react'
-import { useForm } from 'react-hook-form'
+import { Plus, Paperclip, Edit2 } from 'lucide-react'
+import { useForm, Controller } from 'react-hook-form'
 import { Expense } from '@/types'
 import { formatCurrency, formatDate, getTodayISO } from '@/utils'
 import { generateId } from '@/utils/helpers'
+import { CurrencyInput } from '@/components/common/CurrencyInput'
+import { EditExpenseModal } from '@/components/modals/EditExpenseModal'
 
 interface ExpenseSectionProps {
   expenses: Expense[]
@@ -22,7 +24,8 @@ interface ExpenseFormData {
 
 export const ExpenseSection = ({ expenses, onExpenseChange }: ExpenseSectionProps) => {
   const [isAdding, setIsAdding] = useState(false)
-  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<ExpenseFormData>({
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null)
+  const { register, handleSubmit, reset, watch, control, formState: { errors } } = useForm<ExpenseFormData>({
     defaultValues: {
       description: '',
       type: 'Única',
@@ -45,7 +48,9 @@ export const ExpenseSection = ({ expenses, onExpenseChange }: ExpenseSectionProp
       paymentDate: data.status === 'Pago' ? data.paymentDate : undefined,
       status: data.status,
       paymentMethod: data.paymentMethod,
-      amount: parseFloat(data.amount.replace(/[^\d.,]/g, '').replace(',', '.')),
+      amount: typeof data.amount === 'string' 
+        ? parseFloat(data.amount.replace(/[^\d.,]/g, '').replace(',', '.')) || 0
+        : data.amount,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     }
@@ -69,6 +74,16 @@ export const ExpenseSection = ({ expenses, onExpenseChange }: ExpenseSectionProp
             updatedAt: new Date().toISOString()
           }
         : expense
+    ))
+  }
+
+  const editExpense = (expenseToEdit: Expense) => {
+    setEditingExpense(expenseToEdit)
+  }
+
+  const saveEditedExpense = (updatedExpense: Expense) => {
+    onExpenseChange(expenses.map(item => 
+      item.id === updatedExpense.id ? updatedExpense : item
     ))
   }
 
@@ -175,11 +190,18 @@ export const ExpenseSection = ({ expenses, onExpenseChange }: ExpenseSectionProp
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Valor
               </label>
-              <input
-                type="text"
-                {...register('amount', { required: 'Valor é obrigatório' })}
-                className="input-field"
-                placeholder="R$ 0,00"
+              <Controller
+                name="amount"
+                control={control}
+                rules={{ required: 'Valor é obrigatório' }}
+                render={({ field }) => (
+                  <CurrencyInput
+                    value={field.value}
+                    onChange={(_, numericValue) => {
+                      field.onChange(numericValue.toString())
+                    }}
+                  />
+                )}
               />
               {errors.amount && (
                 <p className="text-red-600 text-sm mt-1">{errors.amount.message}</p>
@@ -254,6 +276,13 @@ export const ExpenseSection = ({ expenses, onExpenseChange }: ExpenseSectionProp
                     {expense.status}
                   </button>
                   <button
+                    onClick={() => editExpense(expense)}
+                    className="text-blue-600 hover:text-blue-800 text-sm p-1 hover:bg-blue-100 rounded"
+                    title="Editar saída"
+                  >
+                    <Edit2 className="h-4 w-4" />
+                  </button>
+                  <button
                     onClick={() => removeExpense(expense.id)}
                     className="text-red-600 hover:text-red-800 text-sm"
                   >
@@ -265,6 +294,14 @@ export const ExpenseSection = ({ expenses, onExpenseChange }: ExpenseSectionProp
           ))}
         </div>
       )}
+
+      {/* Edit Modal */}
+      <EditExpenseModal
+        expense={editingExpense}
+        isOpen={!!editingExpense}
+        onClose={() => setEditingExpense(null)}
+        onSave={saveEditedExpense}
+      />
     </div>
   )
 }
