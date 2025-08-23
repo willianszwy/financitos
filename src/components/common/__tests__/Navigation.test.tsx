@@ -1,42 +1,11 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
-import { createContext } from 'react'
 import { Navigation } from '../Navigation'
-
-// Mock the useAppToast hook
-const mockToast = {
-  success: vi.fn(),
-  error: vi.fn(),
-  toasts: [],
-  removeToast: vi.fn()
-}
-
-const ToastContext = createContext(mockToast)
-
-// Mock the useGoogleDrive hook
-vi.mock('@/hooks/useGoogleDrive', () => ({
-  useGoogleDrive: () => ({
-    isAuthenticated: false,
-    isLoading: false,
-    signIn: vi.fn(),
-    syncData: vi.fn(),
-    error: null,
-    clearError: vi.fn(),
-    lastSync: null
-  })
-}))
-
-// Mock the useAppToast hook
-vi.mock('@/App', () => ({
-  useAppToast: () => mockToast
-}))
 
 const NavigationWithRouter = () => (
   <BrowserRouter>
-    <ToastContext.Provider value={mockToast}>
-      <Navigation />
-    </ToastContext.Provider>
+    <Navigation />
   </BrowserRouter>
 )
 
@@ -47,16 +16,15 @@ describe('Navigation', () => {
     // Check logo and title
     expect(screen.getByText('Financitos')).toBeInTheDocument()
     
-    // Check buttons (sync button and menu button)
-    const buttons = screen.getAllByRole('button')
-    expect(buttons).toHaveLength(2) // sync button + menu button
+    // Check menu button
+    const menuButton = screen.getByRole('button')
+    expect(menuButton).toBeInTheDocument()
   })
 
   it('should toggle mobile menu', () => {
     render(<NavigationWithRouter />)
 
-    const buttons = screen.getAllByRole('button')
-    const menuButton = buttons[1] // Second button is the menu button
+    const menuButton = screen.getByRole('button')
     
     // Menu should be hidden initially
     expect(screen.queryByText('Comprinhas')).not.toBeInTheDocument()
@@ -73,8 +41,7 @@ describe('Navigation', () => {
   it('should close menu when link is clicked', () => {
     render(<NavigationWithRouter />)
 
-    const buttons = screen.getAllByRole('button')
-    const menuButton = buttons[1] // Second button is the menu button
+    const menuButton = screen.getByRole('button')
     fireEvent.click(menuButton)
 
     // Menu should be open
@@ -91,8 +58,7 @@ describe('Navigation', () => {
   it('should show active link styles', () => {
     render(<NavigationWithRouter />)
 
-    const buttons = screen.getAllByRole('button')
-    const menuButton = buttons[1] // Second button is the menu button
+    const menuButton = screen.getByRole('button')
     fireEvent.click(menuButton)
 
     // The root path should be active
@@ -103,8 +69,7 @@ describe('Navigation', () => {
   it('should render navigation icons', () => {
     render(<NavigationWithRouter />)
 
-    const buttons = screen.getAllByRole('button')
-    const menuButton = buttons[1] // Second button is the menu button
+    const menuButton = screen.getByRole('button')
     fireEvent.click(menuButton)
 
     // Check for icon presence by checking for the navigation links with icons
@@ -113,5 +78,16 @@ describe('Navigation', () => {
     
     expect(financitosLink).toBeInTheDocument()
     expect(comprinhasLink).toBeInTheDocument()
+  })
+
+  it('should show local storage info', () => {
+    render(<NavigationWithRouter />)
+
+    const menuButton = screen.getByRole('button')
+    fireEvent.click(menuButton)
+
+    // Check for local storage info
+    expect(screen.getByText('Armazenamento Local')).toBeInTheDocument()
+    expect(screen.getByText('Seus dados ficam salvos apenas neste dispositivo')).toBeInTheDocument()
   })
 })

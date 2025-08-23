@@ -1,6 +1,6 @@
 # 💰 Financitos - Gestão Financeira
 
-Um Progressive Web App (PWA) moderno para gestão de finanças pessoais com funcionalidades offline e sincronização com Google Drive.
+Um Progressive Web App (PWA) moderno para gestão de finanças pessoais com armazenamento local e funcionalidades offline.
 
 ## 🚀 Funcionalidades
 
@@ -17,10 +17,11 @@ Um Progressive Web App (PWA) moderno para gestão de finanças pessoais com func
 - Interface otimizada para mobile
 
 ### 📱 Características PWA
-- Funciona offline
+- Funciona completamente offline
 - Instalável no dispositivo
-- Armazenamento local persistente
+- Dados salvos localmente no navegador
 - Design responsivo mobile-first
+- Sem necessidade de conexão com internet
 
 ### 🔧 Tecnologias Utilizadas
 - **Frontend**: React 18 + TypeScript + Vite
@@ -31,7 +32,7 @@ Um Progressive Web App (PWA) moderno para gestão de finanças pessoais com func
 - **Datas**: date-fns
 - **PWA**: Vite PWA Plugin
 - **Testes**: Vitest + React Testing Library
-- **API**: Google Drive API v3 para sincronização
+- **Armazenamento**: Local Storage API
 
 ## 📦 Instalação e Desenvolvimento
 
@@ -43,10 +44,6 @@ cd financitos
 # Instale as dependências
 npm install
 
-# Configure as variáveis de ambiente (opcional para Google Drive)
-cp .env.example .env
-# Edite o .env com suas credenciais do Google Drive API
-
 # Execute em modo de desenvolvimento
 npm run dev
 
@@ -57,39 +54,12 @@ npm test
 npm run build
 ```
 
-### 🔑 Configuração do Google Drive (Opcional)
+### 💾 **Armazenamento de Dados**
 
-Para habilitar a sincronização com Google Drive:
-
-1. Acesse o [Google Cloud Console](https://console.cloud.google.com/)
-2. Crie um novo projeto ou selecione um existente
-3. Ative a **Google Drive API**
-4. Crie credenciais:
-   - **OAuth 2.0 Client ID** para autenticação
-   - **API Key** para acesso à API
-5. Configure as origens autorizadas:
-   - Development: `http://localhost:5173`
-   - Production: `https://willianszwy.github.io`
-6. Adicione as credenciais no arquivo `.env`
-
-```env
-VITE_GOOGLE_CLIENT_ID=seu-client-id.googleusercontent.com
-VITE_GOOGLE_API_KEY=sua-api-key
-```
-
-### 🚀 Deploy no GitHub Pages
-
-Para usar a integração Google Drive em produção:
-
-1. **Configurar Secrets no GitHub**:
-   - Vá para Settings → Secrets and variables → Actions
-   - Adicione as secrets:
-     - `VITE_GOOGLE_CLIENT_ID`: seu-client-id.googleusercontent.com
-     - `VITE_GOOGLE_API_KEY`: sua-api-key
-
-2. **Configurar Google Cloud Console**:
-   - Adicione `https://willianszwy.github.io` nas origens autorizadas
-   - O deploy automático injetará as variáveis durante o build
+- **Totalmente Local**: Todos os dados ficam salvos no seu navegador
+- **Offline**: Funciona sem internet
+- **Privacidade**: Seus dados nunca saem do seu dispositivo
+- **Backup Manual**: Use as funcionalidades de exportar/importar (futuras)
 
 ## 🎯 Scripts Disponíveis
 
@@ -113,12 +83,11 @@ src/
 │   ├── Financitos/      # Página principal de finanças
 │   └── Comprinhas/      # Página de lista de compras
 ├── hooks/
-│   ├── useGoogleDrive/  # Hook para Google Drive (futuro)
 │   ├── useLocalStorage/ # Gerenciamento de storage local
+│   ├── useCurrencyMask.ts # Máscara monetária para inputs
 │   └── useNotifications/ # Sistema de notificações (futuro)
 ├── services/
-│   ├── googleDrive.ts   # API do Google Drive (futuro)
-│   ├── storage.ts       # Gerenciamento de dados
+│   ├── storage.ts       # Gerenciamento de dados local
 │   └── notifications.ts # Sistema de notificações (futuro)
 ├── utils/
 │   ├── calculations.ts  # Cálculos financeiros
@@ -141,13 +110,14 @@ src/
 
 ## 🔮 Próximas Funcionalidades
 
-- [x] **Integração com Google Drive API** - Sincronização manual via botão
-- [ ] Notificações push para vencimentos
-- [ ] Gráficos e relatórios avançados
-- [ ] Backup automático na nuvem
-- [ ] Categorização avançada de gastos
-- [ ] Metas financeiras
-- [ ] Sincronização automática em background
+- [x] **Máscaras monetárias** - Formatação automática R$ 1.234,56
+- [x] **Edição de registros** - Modais para editar entradas, saídas e investimentos
+- [ ] **Exportação de dados** - Backup em arquivo JSON
+- [ ] **Importação de dados** - Restaurar backup de arquivo
+- [ ] **Notificações push** para vencimentos
+- [ ] **Gráficos e relatórios** avançados
+- [ ] **Categorização avançada** de gastos
+- [ ] **Metas financeiras**
 
 ## 📝 Licença
 
