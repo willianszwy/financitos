@@ -118,9 +118,19 @@ describe('calculations', () => {
       expect(growth).toBe(-500)
     })
 
-    it('should return 0 for missing previous value', () => {
-      const growth = calculateInvestmentGrowth(8000, 0)
+    it('should return 0 for undefined previous value', () => {
+      const growth = calculateInvestmentGrowth(8000, undefined as any)
       expect(growth).toBe(0)
+    })
+
+    it('should return 0 for null previous value', () => {
+      const growth = calculateInvestmentGrowth(8000, null as any)
+      expect(growth).toBe(0)
+    })
+
+    it('should calculate growth from zero previous value', () => {
+      const growth = calculateInvestmentGrowth(8000, 0)
+      expect(growth).toBe(8000)
     })
   })
 
