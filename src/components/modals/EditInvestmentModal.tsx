@@ -60,24 +60,19 @@ export const EditInvestmentModal = ({ investment, investments, isOpen, onClose, 
   const onSubmit = (data: InvestmentFormData) => {
     if (!investment) return
 
-    const currentValue = typeof data.currentValue === 'string' 
-      ? parseFloat(data.currentValue.replace(/[^\d.,]/g, '').replace(',', '.')) || 0
-      : data.currentValue
+    // CurrencyInput already returns the correct numeric value as string
+    const currentValue = parseFloat(data.currentValue) || 0
 
-    const rate = typeof data.rate === 'string'
-      ? parseFloat(data.rate.replace(/[^\d.,]/g, '').replace(',', '.')) || 0
-      : data.rate
+    // Handle rate - ensure zero values are preserved
+    let rate: number
+    if (data.rate === '') {
+      rate = 0
+    } else {
+      rate = parseFloat(data.rate.replace(/[^\d.,]/g, '').replace(',', '.')) || 0
+    }
     
-    // Find previous investment of same type for growth calculation (excluding current one)
-    const previousInvestment = investments.find(inv => 
-      inv.type === data.type && 
-      inv.bank === data.bank && 
-      inv.id !== investment.id
-    )
-    
-    const growth = previousInvestment 
-      ? calculateInvestmentGrowth(currentValue, previousInvestment.currentValue)
-      : calculateInvestmentGrowth(currentValue, investment.previousValue || 0)
+    // Calculate growth based on previous value stored in the investment
+    const growth = calculateInvestmentGrowth(currentValue, investment.previousValue || investment.currentValue)
 
     const updatedInvestment: Investment = {
       ...investment,
@@ -145,7 +140,6 @@ export const EditInvestmentModal = ({ investment, investments, isOpen, onClose, 
               <Controller
                 name="currentValue"
                 control={control}
-                rules={{ required: 'Valor é obrigatório' }}
                 render={({ field }) => (
                   <CurrencyInput
                     value={field.value}
@@ -167,13 +161,7 @@ export const EditInvestmentModal = ({ investment, investments, isOpen, onClose, 
               <div className="flex space-x-2">
                 <input
                   type="text"
-                  {...register('rate', { 
-                    required: 'Taxa é obrigatória',
-                    pattern: {
-                      value: /^\d+([.,]\d+)?$/,
-                      message: 'Digite um número válido'
-                    }
-                  })}
+                  {...register('rate')}
                   className="input-field flex-1"
                   placeholder="0,5"
                 />

@@ -57,31 +57,55 @@ export const InvestmentSection = ({ investments, onInvestmentChange }: Investmen
   }
 
   const onSubmit = (data: InvestmentFormData) => {
-    const currentValue = typeof data.currentValue === 'string' 
-      ? parseFloat(data.currentValue.replace(/[^\d.,]/g, '').replace(',', '.')) || 0
-      : data.currentValue
-    const rate = parseFloat(data.rate.replace(/[^\d.,]/g, '').replace(',', '.')) || 0
+    // CurrencyInput already returns the correct numeric value as string
+    const currentValue = parseFloat(data.currentValue) || 0
     
-    // Find previous investment of same type for growth calculation
-    const previousInvestment = investments.find(inv => inv.type === data.type && inv.bank === data.bank)
-    const growth = previousInvestment 
-      ? calculateInvestmentGrowth(currentValue, previousInvestment.currentValue)
-      : 0
-
-    const newInvestment: Investment = {
-      id: generateId(),
-      type: data.type,
-      bank: data.bank,
-      currentValue,
-      previousValue: previousInvestment?.currentValue,
-      growth,
-      rate,
-      projection: calculateInvestmentProjection(currentValue, rate),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+    // Handle rate - ensure zero values are preserved
+    let rate: number
+    if (data.rate === '') {
+      rate = 0
+    } else {
+      rate = parseFloat(data.rate.replace(/[^\d.,]/g, '').replace(',', '.')) || 0
     }
+    
+    // Find existing investment of same type and bank to update, or create new one
+    const existingInvestment = investments.find(inv => inv.type === data.type && inv.bank === data.bank)
+    
+    if (existingInvestment) {
+      // Update existing investment
+      const growth = calculateInvestmentGrowth(currentValue, existingInvestment.currentValue)
+      
+      const updatedInvestment: Investment = {
+        ...existingInvestment,
+        previousValue: existingInvestment.currentValue, // Store current as previous
+        currentValue,
+        growth,
+        rate,
+        projection: calculateInvestmentProjection(currentValue, rate),
+        updatedAt: new Date().toISOString()
+      }
 
-    onInvestmentChange([...investments, newInvestment])
+      // Replace the existing investment
+      onInvestmentChange(investments.map(inv => 
+        inv.id === existingInvestment.id ? updatedInvestment : inv
+      ))
+    } else {
+      // Create new investment
+      const newInvestment: Investment = {
+        id: generateId(),
+        type: data.type,
+        bank: data.bank,
+        currentValue,
+        previousValue: undefined,
+        growth: 0, // First time, no growth
+        rate,
+        projection: calculateInvestmentProjection(currentValue, rate),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+
+      onInvestmentChange([...investments, newInvestment])
+    }
     reset()
     setIsAdding(false)
   }
@@ -236,7 +260,6 @@ export const InvestmentSection = ({ investments, onInvestmentChange }: Investmen
               <Controller
                 name="currentValue"
                 control={control}
-                rules={{ required: 'Valor é obrigatório' }}
                 render={({ field }) => (
                   <CurrencyInput
                     value={field.value}
@@ -258,7 +281,7 @@ export const InvestmentSection = ({ investments, onInvestmentChange }: Investmen
               <div className="flex space-x-2">
                 <input
                   type="text"
-                  {...register('rate', { required: 'Taxa é obrigatória' })}
+                  {...register('rate')}
                   className="input-field flex-1"
                   placeholder="0,5"
                 />
@@ -295,7 +318,10 @@ export const InvestmentSection = ({ investments, onInvestmentChange }: Investmen
               Cancelar
             </button>
             <button type="submit" className="flex-1 btn-primary">
-              Adicionar
+              {watch('bank') && watch('type') && investments.find(inv => inv.type === watch('type') && inv.bank === watch('bank')) 
+                ? 'Atualizar' 
+                : 'Adicionar'
+              }
             </button>
           </div>
         </form>

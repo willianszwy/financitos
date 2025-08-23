@@ -38,7 +38,7 @@ export const calculateFinancialSummary = (
 }
 
 export const calculateInvestmentGrowth = (currentValue: number, previousValue: number): number => {
-  if (!previousValue || previousValue === 0) return 0
+  if (previousValue === undefined || previousValue === null) return 0
   return currentValue - previousValue
 }
 
