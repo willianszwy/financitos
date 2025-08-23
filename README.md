@@ -31,6 +31,7 @@ Um Progressive Web App (PWA) moderno para gestão de finanças pessoais com func
 - **Datas**: date-fns
 - **PWA**: Vite PWA Plugin
 - **Testes**: Vitest + React Testing Library
+- **API**: Google Drive API v3 para sincronização
 
 ## 📦 Instalação e Desenvolvimento
 
@@ -42,6 +43,10 @@ cd financitos
 # Instale as dependências
 npm install
 
+# Configure as variáveis de ambiente (opcional para Google Drive)
+cp .env.example .env
+# Edite o .env com suas credenciais do Google Drive API
+
 # Execute em modo de desenvolvimento
 npm run dev
 
@@ -50,6 +55,26 @@ npm test
 
 # Build para produção
 npm run build
+```
+
+### 🔑 Configuração do Google Drive (Opcional)
+
+Para habilitar a sincronização com Google Drive:
+
+1. Acesse o [Google Cloud Console](https://console.cloud.google.com/)
+2. Crie um novo projeto ou selecione um existente
+3. Ative a **Google Drive API**
+4. Crie credenciais:
+   - **OAuth 2.0 Client ID** para autenticação
+   - **API Key** para acesso à API
+5. Configure as origens autorizadas:
+   - Development: `http://localhost:5173`
+   - Production: `https://willianszwy.github.io`
+6. Adicione as credenciais no arquivo `.env`
+
+```env
+REACT_APP_GOOGLE_CLIENT_ID=seu-client-id.googleusercontent.com
+REACT_APP_GOOGLE_API_KEY=sua-api-key
 ```
 
 ## 🎯 Scripts Disponíveis
@@ -102,12 +127,13 @@ src/
 
 ## 🔮 Próximas Funcionalidades
 
-- [ ] Integração com Google Drive API
+- [x] **Integração com Google Drive API** - Sincronização manual via botão
 - [ ] Notificações push para vencimentos
 - [ ] Gráficos e relatórios avançados
 - [ ] Backup automático na nuvem
 - [ ] Categorização avançada de gastos
 - [ ] Metas financeiras
+- [ ] Sincronização automática em background
 
 ## 📝 Licença
 
