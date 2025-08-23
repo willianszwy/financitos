@@ -73,9 +73,23 @@ Para habilitar a sincronização com Google Drive:
 6. Adicione as credenciais no arquivo `.env`
 
 ```env
-REACT_APP_GOOGLE_CLIENT_ID=seu-client-id.googleusercontent.com
-REACT_APP_GOOGLE_API_KEY=sua-api-key
+VITE_GOOGLE_CLIENT_ID=seu-client-id.googleusercontent.com
+VITE_GOOGLE_API_KEY=sua-api-key
 ```
+
+### 🚀 Deploy no GitHub Pages
+
+Para usar a integração Google Drive em produção:
+
+1. **Configurar Secrets no GitHub**:
+   - Vá para Settings → Secrets and variables → Actions
+   - Adicione as secrets:
+     - `VITE_GOOGLE_CLIENT_ID`: seu-client-id.googleusercontent.com
+     - `VITE_GOOGLE_API_KEY`: sua-api-key
+
+2. **Configurar Google Cloud Console**:
+   - Adicione `https://willianszwy.github.io` nas origens autorizadas
+   - O deploy automático injetará as variáveis durante o build
 
 ## 🎯 Scripts Disponíveis
 
