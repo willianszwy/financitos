@@ -84,6 +84,12 @@ export const InvestmentSection = ({ investments, onInvestmentChange }: Investmen
     return acc
   }, {} as Record<string, Investment[]>)
 
+  // Ensure all investment types are shown, even if empty
+  const allInvestmentTypes: Record<string, Investment[]> = {
+    'Poupança': groupedInvestments['Poupança'] || [],
+    'CDI': groupedInvestments['CDI'] || []
+  }
+
   return (
     <div className="card">
       <div className="flex items-center justify-between mb-4">
@@ -94,7 +100,7 @@ export const InvestmentSection = ({ investments, onInvestmentChange }: Investmen
       </div>
 
       {/* Investment Types */}
-      {Object.entries(groupedInvestments).map(([type, typeInvestments]) => (
+      {Object.entries(allInvestmentTypes).map(([type, typeInvestments]) => (
         <div key={type} className="mb-6">
           <h3 className="text-md font-semibold text-gray-700 mb-3 flex items-center space-x-2">
             <span>{type === 'Poupança' ? '🏛️' : '📊'}</span>
@@ -102,8 +108,15 @@ export const InvestmentSection = ({ investments, onInvestmentChange }: Investmen
           </h3>
           
           <div className="space-y-3">
-            {typeInvestments.map((investment) => (
-              <div key={investment.id} className="p-4 bg-blue-50 rounded-lg">
+            {typeInvestments.length === 0 ? (
+              <div className="p-4 bg-gray-50 rounded-lg text-center">
+                <p className="text-gray-500 text-sm">
+                  Nenhum investimento em {type} cadastrado
+                </p>
+              </div>
+            ) : (
+              typeInvestments.map((investment) => (
+                <div key={investment.id} className="p-4 bg-blue-50 rounded-lg">
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex-1">
                     <div className="font-medium text-gray-800">{investment.bank}</div>
@@ -147,7 +160,8 @@ export const InvestmentSection = ({ investments, onInvestmentChange }: Investmen
                   </div>
                 </div>
               </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       ))}
