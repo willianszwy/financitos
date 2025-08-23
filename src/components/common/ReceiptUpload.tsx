@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { Paperclip, Mail, X } from 'lucide-react'
+import { Paperclip, Mail, X, Download, Copy } from 'lucide-react'
 import { formatCurrency, formatDate } from '@/utils'
 
 interface ReceiptUploadProps {
@@ -45,6 +45,38 @@ export const ReceiptUpload = ({
     }
   }
 
+  const downloadFile = () => {
+    if (!selectedFile) return
+    
+    const url = URL.createObjectURL(selectedFile)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = selectedFile.name
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
+  const copyToClipboard = async () => {
+    if (!selectedFile) return
+
+    try {
+      // Criar uma lista de arquivos para copiar
+      const clipboardItems = [
+        new ClipboardItem({
+          [selectedFile.type]: selectedFile
+        })
+      ]
+      await navigator.clipboard.write(clipboardItems)
+      alert('Arquivo copiado! Cole no seu email com Ctrl+V')
+    } catch (error) {
+      console.error('Erro ao copiar arquivo:', error)
+      // Fallback: mostrar instruções
+      alert('Não foi possível copiar automaticamente. Use o botão de download e anexe manualmente.')
+    }
+  }
+
   const sendByEmail = () => {
     if (!selectedFile) return
 
@@ -63,7 +95,9 @@ export const ReceiptUpload = ({
 🗓️ Mês/Ano: ${monthYear}
 
 ---
-📎 Anexo: ${selectedFile.name}
+📎 Anexar: ${selectedFile.name}
+💡 Lembre-se de anexar o arquivo manualmente no email!
+
 📧 Enviado automaticamente pelo Financitos`
 
     // Criar URL mailto
@@ -71,6 +105,9 @@ export const ReceiptUpload = ({
     
     // Abrir cliente de email
     window.open(mailtoUrl)
+    
+    // Tentar copiar arquivo automaticamente
+    copyToClipboard()
   }
 
   return (
@@ -92,7 +129,7 @@ export const ReceiptUpload = ({
         </div>
       ) : (
         <div className="border border-gray-300 rounded-lg p-3">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-3">
             <div className="flex items-center space-x-2 flex-1 min-w-0">
               <Paperclip className="h-4 w-4 text-gray-500 flex-shrink-0" />
               <span className="text-sm text-gray-700 truncate">{selectedFile.name}</span>
@@ -100,33 +137,41 @@ export const ReceiptUpload = ({
                 ({(selectedFile.size / 1024 / 1024).toFixed(1)}MB)
               </span>
             </div>
-            <div className="flex items-center space-x-2 ml-2">
-              <button
-                onClick={sendByEmail}
-                className="p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded transition-colors"
-                title="Enviar por email"
-              >
-                <Mail className="h-4 w-4" />
-              </button>
-              <button
-                onClick={removeFile}
-                className="p-1 text-red-600 hover:text-red-800 hover:bg-red-100 rounded transition-colors"
-                title="Remover arquivo"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
+            <button
+              onClick={removeFile}
+              className="p-1 text-red-600 hover:text-red-800 hover:bg-red-100 rounded transition-colors ml-2"
+              title="Remover arquivo"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
           
-          {selectedFile && (
+          <div className="grid grid-cols-3 gap-2">
             <button
               onClick={sendByEmail}
-              className="mt-3 w-full btn-secondary text-blue-600 border-blue-200 hover:bg-blue-50 flex items-center justify-center space-x-2"
+              className="btn-secondary text-blue-600 border-blue-200 hover:bg-blue-50 flex items-center justify-center space-x-1 text-xs py-2"
+              title="Abre email e tenta copiar arquivo"
             >
-              <Mail className="h-4 w-4" />
-              <span>Enviar Comprovante por Email</span>
+              <Mail className="h-3 w-3" />
+              <span>Email</span>
             </button>
-          )}
+            <button
+              onClick={copyToClipboard}
+              className="btn-secondary text-green-600 border-green-200 hover:bg-green-50 flex items-center justify-center space-x-1 text-xs py-2"
+              title="Copiar arquivo para colar no email"
+            >
+              <Copy className="h-3 w-3" />
+              <span>Copiar</span>
+            </button>
+            <button
+              onClick={downloadFile}
+              className="btn-secondary text-purple-600 border-purple-200 hover:bg-purple-50 flex items-center justify-center space-x-1 text-xs py-2"
+              title="Baixar arquivo"
+            >
+              <Download className="h-3 w-3" />
+              <span>Baixar</span>
+            </button>
+          </div>
         </div>
       )}
 
@@ -139,9 +184,12 @@ export const ReceiptUpload = ({
       />
       
       {selectedFile && (
-        <p className="text-xs text-gray-500">
-          💡 Clique em "Enviar por Email" para abrir seu cliente de email com título sugestivo para fácil busca
-        </p>
+        <div className="text-xs text-gray-500 space-y-1">
+          <p className="font-medium">💡 Como anexar:</p>
+          <p>• <strong>Email</strong>: Abre email com dados + tenta copiar arquivo</p>
+          <p>• <strong>Copiar</strong>: Copia arquivo para colar com Ctrl+V</p>
+          <p>• <strong>Baixar</strong>: Salva arquivo para anexar manualmente</p>
+        </div>
       )}
     </div>
   )
