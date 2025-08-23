@@ -15,7 +15,8 @@ describe('StorageService', () => {
       uniqueExpenses: 0,
       totalInvestments: 0,
       savingsTotal: 0,
-      cdiTotal: 0
+      cdiTotal: 0,
+      netBalance: 0
     }
   }
 

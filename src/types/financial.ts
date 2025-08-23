@@ -47,6 +47,7 @@ export interface MonthlyFinancialData {
     totalInvestments: number
     savingsTotal: number
     cdiTotal: number
+    netBalance: number
   }
 }
 

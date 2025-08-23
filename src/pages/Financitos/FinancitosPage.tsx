@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { ChevronLeft, ChevronRight, Calendar, Loader2 } from 'lucide-react'
 import { getCurrentMonthKey, getNextMonthKey, getPreviousMonthKey, formatMonthName } from '@/utils/dates'
 import { useFinancialData } from '@/hooks/useLocalStorage'

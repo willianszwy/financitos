@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { MonthlyFinancialData, ShoppingList, AppSettings } from '@/types'
 import { StorageService } from '@/services/storage'
-import { getCurrentMonthKey } from '@/utils/dates'
+// import { getCurrentMonthKey } from '@/utils/dates'
 import { calculateFinancialSummary } from '@/utils/calculations'
 
 export const useFinancialData = (monthKey: string) => {
@@ -30,7 +30,8 @@ export const useFinancialData = (monthKey: string) => {
             uniqueExpenses: 0,
             totalInvestments: 0,
             savingsTotal: 0,
-            cdiTotal: 0
+            cdiTotal: 0,
+            netBalance: 0
           }
         }
       }
@@ -70,19 +71,19 @@ export const useFinancialData = (monthKey: string) => {
     }
   }, [])
 
-  const updateIncome = useCallback((income: typeof data.income) => {
+  const updateIncome = useCallback((income: MonthlyFinancialData['income']) => {
     if (data) {
       saveData({ ...data, income })
     }
   }, [data, saveData])
 
-  const updateExpenses = useCallback((expenses: typeof data.expenses) => {
+  const updateExpenses = useCallback((expenses: MonthlyFinancialData['expenses']) => {
     if (data) {
       saveData({ ...data, expenses })
     }
   }, [data, saveData])
 
-  const updateInvestments = useCallback((investments: typeof data.investments) => {
+  const updateInvestments = useCallback((investments: MonthlyFinancialData['investments']) => {
     if (data) {
       saveData({ ...data, investments })
     }
@@ -143,7 +144,7 @@ export const useShoppingList = () => {
     }
   }, [])
 
-  const updateItems = useCallback((items: typeof shoppingList.items) => {
+  const updateItems = useCallback((items: ShoppingList['items']) => {
     saveShoppingList({ ...shoppingList, items })
   }, [shoppingList, saveShoppingList])
 

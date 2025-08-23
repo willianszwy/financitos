@@ -119,7 +119,7 @@ export class StorageService {
   static exportAllData(): string {
     try {
       const allData = {
-        financialData: {},
+        financialData: {} as Record<string, any>,
         shoppingList: this.getShoppingList(),
         settings: this.getAppSettings(),
         exportedAt: new Date().toISOString()
@@ -146,7 +146,7 @@ export class StorageService {
       
       // Import financial data
       if (data.financialData) {
-        Object.entries(data.financialData).forEach(([monthKey, monthData]) => {
+        Object.entries(data.financialData || {}).forEach(([, monthData]) => {
           this.saveMonthlyFinancialData(monthData as MonthlyFinancialData)
         })
       }
