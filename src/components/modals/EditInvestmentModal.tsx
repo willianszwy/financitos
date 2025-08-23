@@ -8,7 +8,6 @@ import { useInterestRates } from '@/hooks/useInterestRates'
 
 interface EditInvestmentModalProps {
   investment: Investment | null
-  investments: Investment[]
   isOpen: boolean
   onClose: () => void
   onSave: (investment: Investment) => void
@@ -21,7 +20,7 @@ interface InvestmentFormData {
   rate: string
 }
 
-export const EditInvestmentModal = ({ investment, investments, isOpen, onClose, onSave }: EditInvestmentModalProps) => {
+export const EditInvestmentModal = ({ investment, isOpen, onClose, onSave }: EditInvestmentModalProps) => {
   const { register, handleSubmit, reset, control, watch, setValue, formState: { errors } } = useForm<InvestmentFormData>()
   const { rates } = useInterestRates(true)
   

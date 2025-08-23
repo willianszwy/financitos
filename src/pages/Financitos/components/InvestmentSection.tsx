@@ -330,7 +330,6 @@ export const InvestmentSection = ({ investments, onInvestmentChange }: Investmen
       {/* Edit Modal */}
       <EditInvestmentModal
         investment={editingInvestment}
-        investments={investments}
         isOpen={!!editingInvestment}
         onClose={() => setEditingInvestment(null)}
         onSave={saveEditedInvestment}
