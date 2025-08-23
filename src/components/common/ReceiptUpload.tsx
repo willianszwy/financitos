@@ -49,7 +49,8 @@ export const ReceiptUpload = ({
     if (!selectedFile) return
 
     // Gerar título sugestivo para o email
-    const monthYear = expenseDate ? formatDate(expenseDate, 'MM/yyyy') : new Date().toLocaleDateString('pt-BR', { month: '2-digit', year: 'numeric' })
+    const date = expenseDate ? new Date(expenseDate) : new Date()
+    const monthYear = date.toLocaleDateString('pt-BR', { month: '2-digit', year: 'numeric' })
     const amount = expenseAmount ? formatCurrency(expenseAmount) : ''
     const subject = `Comprovante - ${expenseDescription}${amount ? ` - ${amount}` : ''} - ${monthYear}`
     

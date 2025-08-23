@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Paperclip, Edit2 } from 'lucide-react'
+import { Plus, Edit2 } from 'lucide-react'
 import { useForm, Controller } from 'react-hook-form'
 import { Expense } from '@/types'
 import { formatCurrency, formatDate, getTodayISO } from '@/utils'

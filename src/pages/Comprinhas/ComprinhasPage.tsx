@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Plus, ExternalLink, Calendar, DollarSign, ShoppingCart, Loader2 } from 'lucide-react'
-import { useForm, Controller } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { ShoppingItem, Priority, PRIORITY_EMOJIS, PRIORITY_COLORS } from '@/types'
 import { formatCurrency, formatDate, getTodayISO } from '@/utils'
 import { generateId, classNames } from '@/utils/helpers'
@@ -22,7 +22,7 @@ export const ComprinhasPage = ({}: ComprinhasPageProps) => {
   const [isAdding, setIsAdding] = useState(false)
   const currencyMask = useCurrencyMask()
   
-  const { register, handleSubmit, reset, control, watch, formState: { errors } } = useForm<ShoppingFormData>({
+  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<ShoppingFormData>({
     defaultValues: {
       description: '',
       estimatedPrice: '',
