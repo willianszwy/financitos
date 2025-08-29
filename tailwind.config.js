@@ -6,6 +6,9 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        'sans': ['Jost', 'system-ui', 'sans-serif'],
+      },
       colors: {
         income: {
           primary: '#139469',
