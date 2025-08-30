@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState } from 'react'
 import { Plus, Edit2 } from 'lucide-react'
 import { useForm, Controller } from 'react-hook-form'
 import { Expense } from '@/types'
