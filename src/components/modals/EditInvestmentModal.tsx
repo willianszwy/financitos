@@ -143,7 +143,7 @@ export const EditInvestmentModal = ({ investment, isOpen, onClose, onSave }: Edi
                   <CurrencyInput
                     value={field.value}
                     onChange={(_, numericValue) => {
-                      field.onChange(numericValue.toString())
+                      field.onChange((numericValue || 0).toString())
                     }}
                   />
                 )}

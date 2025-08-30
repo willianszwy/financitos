@@ -264,7 +264,7 @@ export const InvestmentSection = ({ investments, onInvestmentChange }: Investmen
                   <CurrencyInput
                     value={field.value}
                     onChange={(_, numericValue) => {
-                      field.onChange(numericValue.toString())
+                      field.onChange((numericValue || 0).toString())
                     }}
                   />
                 )}

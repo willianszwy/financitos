@@ -15,7 +15,7 @@ interface IncomeSectionProps {
 interface IncomeFormData {
   source: string
   date: string
-  amount: string
+  amount: number
 }
 
 export const IncomeSection = ({ income, onIncomeChange }: IncomeSectionProps) => {
@@ -25,7 +25,7 @@ export const IncomeSection = ({ income, onIncomeChange }: IncomeSectionProps) =>
     defaultValues: {
       source: '',
       date: getTodayISO(),
-      amount: ''
+      amount: 0
     }
   })
 
@@ -34,9 +34,7 @@ export const IncomeSection = ({ income, onIncomeChange }: IncomeSectionProps) =>
       id: generateId(),
       source: data.source,
       date: data.date,
-      amount: typeof data.amount === 'string' 
-        ? parseFloat(data.amount.replace(/[^\d.,]/g, '').replace(',', '.')) || 0
-        : data.amount,
+      amount: typeof data.amount === 'number' ? data.amount : parseFloat(data.amount) || 0,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     }
@@ -121,7 +119,7 @@ export const IncomeSection = ({ income, onIncomeChange }: IncomeSectionProps) =>
                 <CurrencyInput
                   value={field.value}
                   onChange={(_, numericValue) => {
-                    field.onChange(numericValue.toString())
+                    field.onChange(numericValue || 0)
                   }}
                 />
               )}

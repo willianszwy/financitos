@@ -104,7 +104,7 @@ export const EditIncomeModal = ({ income, isOpen, onClose, onSave }: EditIncomeM
                 <CurrencyInput
                   value={field.value}
                   onChange={(_, numericValue) => {
-                    field.onChange(numericValue.toString())
+                    field.onChange((numericValue || 0).toString())
                   }}
                 />
               )}

@@ -10,7 +10,7 @@ export interface Income {
 export interface Expense {
   id: string
   description: string
-  type: 'Fixa' | 'Única'
+  type: 'Recorrente' | 'Única'
   dueDate: string
   paymentDate?: string
   status: 'Pago' | 'Pendente'

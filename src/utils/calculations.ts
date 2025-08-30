@@ -9,7 +9,7 @@ export const calculateFinancialSummary = (
   
   const totalExpenses = expenses.reduce((sum, item) => sum + item.amount, 0)
   const fixedExpenses = expenses
-    .filter(item => item.type === 'Fixa')
+    .filter(item => item.type === 'Recorrente')
     .reduce((sum, item) => sum + item.amount, 0)
   const uniqueExpenses = expenses
     .filter(item => item.type === 'Única')

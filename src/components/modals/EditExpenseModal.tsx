@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useCallback } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { X } from 'lucide-react'
 import { Expense } from '@/types'
@@ -14,32 +14,28 @@ interface EditExpenseModalProps {
 
 interface ExpenseFormData {
   description: string
-  type: 'Fixa' | 'Única'
   dueDate: string
   paymentDate: string
   status: 'Pago' | 'Pendente'
   paymentMethod: 'Crédito' | 'Débito' | 'PIX' | 'Dinheiro'
-  amount: string
+  amount: number
 }
 
 export const EditExpenseModal = ({ expense, isOpen, onClose, onSave }: EditExpenseModalProps) => {
-  const { register, handleSubmit, reset, control, watch, formState: { errors } } = useForm<ExpenseFormData>()
+  const { register, handleSubmit, reset, control, watch, getValues, formState: { errors } } = useForm<ExpenseFormData>()
   
   const status = watch('status')
-  const description = watch('description')
-  const amount = watch('amount')
-  const dueDate = watch('dueDate')
+
 
   useEffect(() => {
     if (expense && isOpen) {
       reset({
         description: expense.description,
-        type: expense.type,
         dueDate: expense.dueDate,
         paymentDate: expense.paymentDate || '',
         status: expense.status,
         paymentMethod: expense.paymentMethod,
-        amount: expense.amount.toString()
+        amount: expense.amount
       })
     }
   }, [expense, isOpen, reset])
@@ -50,14 +46,11 @@ export const EditExpenseModal = ({ expense, isOpen, onClose, onSave }: EditExpen
     const updatedExpense: Expense = {
       ...expense,
       description: data.description,
-      type: data.type,
       dueDate: data.dueDate,
       paymentDate: data.status === 'Pago' ? data.paymentDate : undefined,
       status: data.status,
       paymentMethod: data.paymentMethod,
-      amount: typeof data.amount === 'string' 
-        ? parseFloat(data.amount.replace(/[^\d.,]/g, '').replace(',', '.')) || 0
-        : data.amount,
+      amount: typeof data.amount === 'number' ? data.amount : parseFloat(data.amount) || 0,
       updatedAt: new Date().toISOString()
     }
 
@@ -96,26 +89,14 @@ export const EditExpenseModal = ({ expense, isOpen, onClose, onSave }: EditExpen
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Tipo
-              </label>
-              <select {...register('type')} className="input-field">
-                <option value="Única">Única</option>
-                <option value="Fixa">Fixa</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Status
-              </label>
-              <select {...register('status')} className="input-field">
-                <option value="Pendente">Pendente</option>
-                <option value="Pago">Pago</option>
-              </select>
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Status
+            </label>
+            <select {...register('status')} className="input-field">
+              <option value="Pendente">Pendente</option>
+              <option value="Pago">Pago</option>
+            </select>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -171,9 +152,7 @@ export const EditExpenseModal = ({ expense, isOpen, onClose, onSave }: EditExpen
                 render={({ field }) => (
                   <CurrencyInput
                     value={field.value}
-                    onChange={(_, numericValue) => {
-                      field.onChange(numericValue.toString())
-                    }}
+                    onChange={(_, numericValue) => field.onChange(numericValue || 0)}
                   />
                 )}
               />
@@ -184,9 +163,9 @@ export const EditExpenseModal = ({ expense, isOpen, onClose, onSave }: EditExpen
           </div>
 
           <ReceiptUpload
-            expenseDescription={description}
-            expenseAmount={amount ? parseFloat(amount.replace(/[^\d.,]/g, '').replace(',', '.')) : undefined}
-            expenseDate={dueDate}
+            expenseDescription={getValues('description')}
+            expenseAmount={getValues('amount') || undefined}
+            expenseDate={getValues('dueDate')}
           />
 
           <div className="flex space-x-2 pt-4">

@@ -14,7 +14,19 @@
       "Bash(rm:*)",
       "Bash(node:*)",
       "WebFetch(domain:developers.anbima.com.br)",
-      "WebFetch(domain:dadosabertos.bcb.gov.br)"
+      "WebFetch(domain:dadosabertos.bcb.gov.br)",
+      "Bash(npm run dev:*)",
+      "Bash(git commit:*)",
+      "Bash(npx playwright:*)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_type",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_console_messages",
+      "mcp__playwright__browser_press_key",
+      "mcp__playwright__browser_close",
+      "mcp__playwright__browser_tabs",
+      "Bash(npm uninstall:*)"
     ],
     "deny": []
   }

@@ -36,7 +36,7 @@ export const FinancialSummaryCard = ({ summary }: FinancialSummaryCardProps) => 
           
           <div className="ml-6 space-y-1 text-sm">
             <div className="flex justify-between text-gray-600">
-              <span>• Fixa</span>
+              <span>• Recorrente</span>
               <span>{formatCurrency(summary.fixedExpenses)}</span>
             </div>
             <div className="flex justify-between text-gray-600">

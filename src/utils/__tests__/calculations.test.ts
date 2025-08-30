@@ -32,7 +32,7 @@ describe('calculations', () => {
     {
       id: '1',
       description: 'Aluguel',
-      type: 'Fixa',
+      type: 'Recorrente',
       dueDate: '2024-01-05',
       status: 'Pago',
       paymentMethod: 'PIX',
