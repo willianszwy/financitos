@@ -26,7 +26,12 @@
       "mcp__playwright__browser_press_key",
       "mcp__playwright__browser_close",
       "mcp__playwright__browser_tabs",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "Bash(git push:*)",
+      "Read(/private/tmp/**)",
+      "Read(/Users/willians/Downloads/**)",
+      "Read(/Users/willians/Downloads/**)",
+      "Read(/Users/willians/Downloads/**)"
     ],
     "deny": []
   }
