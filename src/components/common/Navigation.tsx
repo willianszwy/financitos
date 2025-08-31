@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Building2, ShoppingCart, Menu } from 'lucide-react'
+import { Menu } from 'lucide-react'
 import { useState } from 'react'
+import { CoinIcon } from './CoinIcon'
 
 export const Navigation = () => {
   const location = useLocation()
@@ -15,7 +16,7 @@ export const Navigation = () => {
       <div className="container mx-auto px-4 max-w-md">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-2">
-            <Building2 className="h-6 w-6 text-income-primary" />
+            <img src="/icon.svg" alt="Financitos" className="h-6 w-6" />
             <span className="font-bold text-lg text-gray-800">Financitos</span>
           </div>
           
@@ -40,7 +41,7 @@ export const Navigation = () => {
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
               >
-                <Building2 className="h-5 w-5" />
+                <img src="/icon.svg" alt="Financitos" className="h-5 w-5" />
                 <span>Financitos</span>
               </Link>
               
@@ -53,7 +54,7 @@ export const Navigation = () => {
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
               >
-                <ShoppingCart className="h-5 w-5" />
+                <CoinIcon className="h-5 w-5" />
                 <span>Comprinhas</span>
               </Link>
 

@@ -7,6 +7,7 @@ import { generateId } from '@/utils/helpers'
 import { CurrencyInput } from '@/components/common/CurrencyInput'
 import { ReceiptUpload } from '@/components/common/ReceiptUpload'
 import { EditExpenseModal } from '@/components/modals/EditExpenseModal'
+import { CoinIcon } from '@/components/common/CoinIcon'
 
 interface ExpenseSectionProps {
   expenses: Expense[]
@@ -340,7 +341,7 @@ export const ExpenseSection = ({ expenses, onExpenseChange }: ExpenseSectionProp
       <div className="card">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-expense-primary flex items-center space-x-2">
-            <span>🛒</span>
+            <CoinIcon className="h-5 w-5" />
             <span>SAÍDAS ÚNICAS</span>
           </h2>
         </div>

@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { Plus, ExternalLink, Calendar, DollarSign, ShoppingCart, Loader2 } from 'lucide-react'
+import { Plus, ExternalLink, Calendar, DollarSign, Loader2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { ShoppingItem, Priority, PRIORITY_EMOJIS, PRIORITY_COLORS } from '@/types'
 import { formatCurrency, formatDate, getTodayISO } from '@/utils'
 import { generateId, classNames } from '@/utils/helpers'
 import { useShoppingList } from '@/hooks/useLocalStorage'
 import { useCurrencyMask } from '@/hooks/useCurrencyMask'
+import { CoinIcon } from '@/components/common/CoinIcon'
 
 interface ComprinhasPageProps {}
 
@@ -121,7 +122,7 @@ export const ComprinhasPage = ({}: ComprinhasPageProps) => {
       {/* Header */}
       <div className="bg-white rounded-lg shadow-sm p-4">
         <h1 className="text-xl font-bold text-gray-800 flex items-center space-x-2">
-          <span>🛒</span>
+          <CoinIcon className="h-6 w-6 text-yellow-500" />
           <span>Comprinhas</span>
         </h1>
         <p className="text-sm text-gray-600 mt-1">
@@ -367,7 +368,7 @@ export const ComprinhasPage = ({}: ComprinhasPageProps) => {
         !isAdding && (
           <div className="card text-center py-12">
             <div className="text-gray-400 mb-4">
-              <ShoppingCart className="h-16 w-16 mx-auto" />
+              <CoinIcon className="h-16 w-16 mx-auto" />
             </div>
             <h3 className="text-lg font-medium text-gray-600 mb-2">
               Nenhum item na lista
