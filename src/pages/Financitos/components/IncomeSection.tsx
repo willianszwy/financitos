@@ -4,6 +4,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { Income } from '@/types'
 import { formatCurrency, getTodayBR, formatDateToBR, formatDateFromBR } from '@/utils'
 import { generateId } from '@/utils/helpers'
+import { sortByDateAscending } from '@/utils/sorting'
 import { CurrencyInput } from '@/components/common/CurrencyInput'
 import { EditIncomeModal } from '@/components/modals/EditIncomeModal'
 
@@ -151,7 +152,7 @@ export const IncomeSection = ({ income, onIncomeChange }: IncomeSectionProps) =>
       {income.length > 0 && (
         <div className="mt-4 space-y-2">
           <h3 className="text-sm font-medium text-gray-700">Entradas do mês:</h3>
-          {income.map((item) => (
+          {sortByDateAscending(income).map((item) => (
             <div
               key={item.id}
               className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"

@@ -4,6 +4,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { Expense } from '@/types'
 import { formatCurrency, getTodayBR, formatDateToBR, formatDateFromBR } from '@/utils'
 import { generateId } from '@/utils/helpers'
+import { sortByDateAscending } from '@/utils/sorting'
 import { CurrencyInput } from '@/components/common/CurrencyInput'
 import { ReceiptUpload } from '@/components/common/ReceiptUpload'
 import { EditExpenseModal } from '@/components/modals/EditExpenseModal'
@@ -222,7 +223,7 @@ export const ExpenseSection = ({ expenses, onExpenseChange }: ExpenseSectionProp
 
     return (
       <div className="space-y-2">
-        {expenseList.map((expense) => (
+        {sortByDateAscending(expenseList).map((expense) => (
           <div
             key={expense.id}
             className="p-3 bg-gray-50 rounded-lg"

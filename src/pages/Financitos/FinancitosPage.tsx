@@ -3,13 +3,22 @@ import { ChevronLeft, ChevronRight, Calendar, Loader2 } from 'lucide-react'
 import { getCurrentMonthKey, getNextMonthKey, getPreviousMonthKey, formatMonthName } from '@/utils/dates'
 import { useFinancialData } from '@/hooks/useLocalStorage'
 import { FinancialSummaryCard } from '@/components/cards/FinancialSummaryCard'
+import { DataManagement } from '@/components/common/DataManagement'
 import { IncomeSection } from './components/IncomeSection'
 import { ExpenseSection } from './components/ExpenseSection'
 import { InvestmentSection } from './components/InvestmentSection'
 
 export const FinancitosPage = () => {
   const [currentMonth, setCurrentMonth] = useState(getCurrentMonthKey())
-  const { data: financialData, loading, error, updateIncome, updateExpenses, updateInvestments } = useFinancialData(currentMonth)
+  const { 
+    data: financialData, 
+    loading, 
+    error, 
+    recurrentExpensesCopied,
+    updateIncome, 
+    updateExpenses, 
+    updateInvestments 
+  } = useFinancialData(currentMonth)
 
   const navigateMonth = (direction: 'prev' | 'next') => {
     const newMonth = direction === 'prev' 
@@ -87,6 +96,21 @@ export const FinancitosPage = () => {
         </div>
       </div>
 
+      {/* Recurrent Expenses Copied Notification */}
+      {recurrentExpensesCopied && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-center space-x-2 text-blue-800">
+            <span>ℹ️</span>
+            <div>
+              <div className="font-medium">Saídas recorrentes copiadas!</div>
+              <div className="text-sm">
+                As saídas recorrentes do mês anterior foram copiadas automaticamente para este mês com status "Pendente".
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Financial Summary */}
       <FinancialSummaryCard summary={financialData.summary} />
 
@@ -106,6 +130,14 @@ export const FinancitosPage = () => {
       <InvestmentSection 
         investments={financialData.investments}
         onInvestmentChange={updateInvestments}
+      />
+
+      {/* Data Management Section */}
+      <DataManagement 
+        onDataImported={() => {
+          // Reload the page after import to reflect new data
+          window.location.reload()
+        }}
       />
 
     </div>
