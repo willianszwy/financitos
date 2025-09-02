@@ -93,6 +93,14 @@ export const ExpenseSection = ({ expenses, onExpenseChange }: ExpenseSectionProp
     ))
   }
 
+  const toggleExpenseStatus = (expenseId: string) => {
+    onExpenseChange(expenses.map(item => 
+      item.id === expenseId 
+        ? { ...item, status: item.status === 'Pago' ? 'Pendente' : 'Pago', updatedAt: new Date().toISOString() }
+        : item
+    ))
+  }
+
   const ExpenseForm = ({ 
     form, 
     onSubmit, 
@@ -232,13 +240,17 @@ export const ExpenseSection = ({ expenses, onExpenseChange }: ExpenseSectionProp
                 </div>
               </div>
               <div className="flex items-center space-x-2 ml-4">
-                <div className={`px-3 py-1 text-xs rounded-full font-medium ${
-                  expense.status === 'Pago' 
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-yellow-100 text-yellow-800'
-                }`}>
+                <button
+                  onClick={() => toggleExpenseStatus(expense.id)}
+                  className={`px-3 py-1 text-xs rounded-full font-medium transition-all duration-200 hover:scale-105 cursor-pointer ${
+                    expense.status === 'Pago' 
+                      ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                      : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
+                  }`}
+                  title={`Clique para alterar para ${expense.status === 'Pago' ? 'Pendente' : 'Pago'}`}
+                >
                   {expense.status}
-                </div>
+                </button>
                 <button
                   onClick={() => editExpense(expense)}
                   className="text-blue-600 hover:text-blue-800 text-sm p-1 hover:bg-blue-100 rounded"
