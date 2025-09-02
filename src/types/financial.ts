@@ -1,7 +1,7 @@
 export interface Income {
   id: string
   source: string
-  date: string
+  deadline: string // dd/mm/yyyy format
   amount: number
   createdAt: string
   updatedAt: string
@@ -11,8 +11,7 @@ export interface Expense {
   id: string
   description: string
   type: 'Recorrente' | 'Única'
-  dueDate: string
-  paymentDate?: string
+  deadline: string // dd/mm/yyyy format
   status: 'Pago' | 'Pendente'
   paymentMethod: 'Crédito' | 'Débito' | 'PIX' | 'Dinheiro'
   amount: number

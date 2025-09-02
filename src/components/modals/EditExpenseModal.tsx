@@ -4,6 +4,7 @@ import { X } from 'lucide-react'
 import { Expense } from '@/types'
 import { CurrencyInput } from '@/components/common/CurrencyInput'
 import { ReceiptUpload } from '@/components/common/ReceiptUpload'
+import { formatDateToBR, formatDateFromBR } from '@/utils'
 
 interface EditExpenseModalProps {
   expense: Expense | null
@@ -14,25 +15,21 @@ interface EditExpenseModalProps {
 
 interface ExpenseFormData {
   description: string
-  dueDate: string
-  paymentDate: string
+  deadline: string
   status: 'Pago' | 'Pendente'
   paymentMethod: 'Crédito' | 'Débito' | 'PIX' | 'Dinheiro'
   amount: number
 }
 
 export const EditExpenseModal = ({ expense, isOpen, onClose, onSave }: EditExpenseModalProps) => {
-  const { register, handleSubmit, reset, control, watch, getValues, formState: { errors } } = useForm<ExpenseFormData>()
-  
-  const status = watch('status')
+  const { register, handleSubmit, reset, control, getValues, formState: { errors } } = useForm<ExpenseFormData>()
 
 
   useEffect(() => {
     if (expense && isOpen) {
       reset({
         description: expense.description,
-        dueDate: expense.dueDate,
-        paymentDate: expense.paymentDate || '',
+        deadline: formatDateFromBR(expense.deadline),
         status: expense.status,
         paymentMethod: expense.paymentMethod,
         amount: expense.amount
@@ -46,8 +43,7 @@ export const EditExpenseModal = ({ expense, isOpen, onClose, onSave }: EditExpen
     const updatedExpense: Expense = {
       ...expense,
       description: data.description,
-      dueDate: data.dueDate,
-      paymentDate: data.status === 'Pago' ? data.paymentDate : undefined,
+      deadline: formatDateToBR(data.deadline),
       status: data.status,
       paymentMethod: data.paymentMethod,
       amount: typeof data.amount === 'number' ? data.amount : parseFloat(data.amount) || 0,
@@ -99,32 +95,17 @@ export const EditExpenseModal = ({ expense, isOpen, onClose, onSave }: EditExpen
             </select>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Vencimento
-              </label>
-              <input
-                type="date"
-                {...register('dueDate', { required: 'Vencimento é obrigatório' })}
-                className="input-field"
-              />
-              {errors.dueDate && (
-                <p className="text-red-600 text-sm mt-1">{errors.dueDate.message}</p>
-              )}
-            </div>
-
-            {status === 'Pago' && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Data Pagamento
-                </label>
-                <input
-                  type="date"
-                  {...register('paymentDate')}
-                  className="input-field"
-                />
-              </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Vencimento
+            </label>
+            <input
+              type="date"
+              {...register('deadline', { required: 'Vencimento é obrigatório' })}
+              className="input-field"
+            />
+            {errors.deadline && (
+              <p className="text-red-600 text-sm mt-1">{errors.deadline.message}</p>
             )}
           </div>
 
@@ -165,7 +146,7 @@ export const EditExpenseModal = ({ expense, isOpen, onClose, onSave }: EditExpen
           <ReceiptUpload
             expenseDescription={getValues('description')}
             expenseAmount={getValues('amount') || undefined}
-            expenseDate={getValues('dueDate')}
+            expenseDate={formatDateToBR(getValues('deadline'))}
           />
 
           <div className="flex space-x-2 pt-4">

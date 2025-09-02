@@ -13,7 +13,7 @@ describe('calculations', () => {
     {
       id: '1',
       source: 'Salário',
-      date: '2024-01-15',
+      deadline: '15/01/2024',
       amount: 5000,
       createdAt: '2024-01-01T00:00:00.000Z',
       updatedAt: '2024-01-01T00:00:00.000Z'
@@ -21,7 +21,7 @@ describe('calculations', () => {
     {
       id: '2', 
       source: 'Freelancer',
-      date: '2024-01-20',
+      deadline: '20/01/2024',
       amount: 1500,
       createdAt: '2024-01-01T00:00:00.000Z',
       updatedAt: '2024-01-01T00:00:00.000Z'
@@ -33,7 +33,7 @@ describe('calculations', () => {
       id: '1',
       description: 'Aluguel',
       type: 'Recorrente',
-      dueDate: '2024-01-05',
+      deadline: '05/01/2024',
       status: 'Pago',
       paymentMethod: 'PIX',
       amount: 1200,
@@ -44,7 +44,7 @@ describe('calculations', () => {
       id: '2',
       description: 'Mercado',
       type: 'Única',
-      dueDate: '2024-01-15',
+      deadline: '15/01/2024',
       status: 'Pendente',
       paymentMethod: 'Crédito',
       amount: 350,
@@ -156,7 +156,7 @@ describe('calculations', () => {
     it('should return empty array when no expenses due today', () => {
       const expensesNotDueToday = mockExpenses.map(expense => ({
         ...expense,
-        dueDate: '2024-01-10'
+        deadline: '10/01/2024'
       }))
       const todayExpenses = calculateDueTodayExpenses(expensesNotDueToday)
       expect(todayExpenses).toHaveLength(0)
@@ -168,7 +168,7 @@ describe('calculations', () => {
       const overdueExpenses = calculateOverdueExpenses([
         {
           ...mockExpenses[0],
-          dueDate: '2024-01-10',
+          deadline: '10/01/2024',
           status: 'Pendente'
         }
       ])
@@ -179,7 +179,7 @@ describe('calculations', () => {
       const overdueExpenses = calculateOverdueExpenses([
         {
           ...mockExpenses[0],
-          dueDate: '2024-01-10',
+          deadline: '10/01/2024',
           status: 'Pago'
         }
       ])

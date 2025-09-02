@@ -46,6 +46,17 @@ export const FinancialSummaryCard = ({ summary }: FinancialSummaryCardProps) => 
           </div>
         </div>
 
+        {/* Balance */}
+        <div className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: '#fdfbd4' }}>
+          <div className="flex items-center space-x-2">
+            <span>💛</span>
+            <span className="font-medium text-gray-700">SALDO</span>
+          </div>
+          <span className="font-semibold text-gray-800">
+            {formatCurrency(summary.netBalance)}
+          </span>
+        </div>
+
         {/* Investments */}
         <div className="p-3 bg-blue-50 rounded-lg">
           <div className="flex items-center justify-between mb-2">

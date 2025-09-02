@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Plus, Edit2 } from 'lucide-react'
 import { useForm, Controller } from 'react-hook-form'
 import { Income } from '@/types'
-import { formatCurrency, formatDate, getTodayISO } from '@/utils'
+import { formatCurrency, getTodayBR, formatDateToBR, formatDateFromBR } from '@/utils'
 import { generateId } from '@/utils/helpers'
 import { CurrencyInput } from '@/components/common/CurrencyInput'
 import { EditIncomeModal } from '@/components/modals/EditIncomeModal'
@@ -14,7 +14,7 @@ interface IncomeSectionProps {
 
 interface IncomeFormData {
   source: string
-  date: string
+  deadline: string
   amount: number
 }
 
@@ -24,7 +24,7 @@ export const IncomeSection = ({ income, onIncomeChange }: IncomeSectionProps) =>
   const { register, handleSubmit, reset, control, formState: { errors } } = useForm<IncomeFormData>({
     defaultValues: {
       source: '',
-      date: getTodayISO(),
+      deadline: formatDateFromBR(getTodayBR()),
       amount: 0
     }
   })
@@ -33,7 +33,7 @@ export const IncomeSection = ({ income, onIncomeChange }: IncomeSectionProps) =>
     const newIncome: Income = {
       id: generateId(),
       source: data.source,
-      date: data.date,
+      deadline: formatDateToBR(data.deadline),
       amount: typeof data.amount === 'number' ? data.amount : parseFloat(data.amount) || 0,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -99,11 +99,11 @@ export const IncomeSection = ({ income, onIncomeChange }: IncomeSectionProps) =>
             </label>
             <input
               type="date"
-              {...register('date', { required: 'Data é obrigatória' })}
+              {...register('deadline', { required: 'Data é obrigatória' })}
               className="input-field"
             />
-            {errors.date && (
-              <p className="text-red-600 text-sm mt-1">{errors.date.message}</p>
+            {errors.deadline && (
+              <p className="text-red-600 text-sm mt-1">{errors.deadline.message}</p>
             )}
           </div>
 
@@ -158,7 +158,7 @@ export const IncomeSection = ({ income, onIncomeChange }: IncomeSectionProps) =>
             >
               <div>
                 <div className="font-medium text-gray-800">{item.source}</div>
-                <div className="text-sm text-gray-600">{formatDate(item.date)}</div>
+                <div className="text-sm text-gray-600">Data: {item.deadline}</div>
               </div>
               <div className="flex items-center space-x-2">
                 <span className="font-semibold text-income-primary">

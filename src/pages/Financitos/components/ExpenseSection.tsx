@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Plus, Edit2 } from 'lucide-react'
 import { useForm, Controller } from 'react-hook-form'
 import { Expense } from '@/types'
-import { formatCurrency, formatDate, getTodayISO } from '@/utils'
+import { formatCurrency, getTodayBR, formatDateToBR, formatDateFromBR } from '@/utils'
 import { generateId } from '@/utils/helpers'
 import { CurrencyInput } from '@/components/common/CurrencyInput'
 import { ReceiptUpload } from '@/components/common/ReceiptUpload'
@@ -16,8 +16,7 @@ interface ExpenseSectionProps {
 
 interface ExpenseFormData {
   description: string
-  dueDate: string
-  paymentDate: string
+  deadline: string
   status: 'Pago' | 'Pendente'
   paymentMethod: 'Crédito' | 'Débito' | 'PIX' | 'Dinheiro'
   amount: number
@@ -31,8 +30,7 @@ export const ExpenseSection = ({ expenses, onExpenseChange }: ExpenseSectionProp
   const recurrentForm = useForm<ExpenseFormData>({
     defaultValues: {
       description: '',
-      dueDate: getTodayISO(),
-      paymentDate: getTodayISO(),
+      deadline: formatDateFromBR(getTodayBR()),
       status: 'Pendente',
       paymentMethod: 'PIX',
       amount: 0
@@ -42,8 +40,7 @@ export const ExpenseSection = ({ expenses, onExpenseChange }: ExpenseSectionProp
   const uniqueForm = useForm<ExpenseFormData>({
     defaultValues: {
       description: '',
-      dueDate: getTodayISO(),
-      paymentDate: getTodayISO(),
+      deadline: formatDateFromBR(getTodayBR()),
       status: 'Pendente',
       paymentMethod: 'PIX',
       amount: 0
@@ -58,8 +55,7 @@ export const ExpenseSection = ({ expenses, onExpenseChange }: ExpenseSectionProp
       id: generateId(),
       description: data.description,
       type,
-      dueDate: data.dueDate,
-      paymentDate: data.status === 'Pago' ? data.paymentDate : undefined,
+      deadline: formatDateToBR(data.deadline),
       status: data.status,
       paymentMethod: data.paymentMethod,
       amount: typeof data.amount === 'number' ? data.amount : parseFloat(data.amount) || 0,
@@ -86,18 +82,6 @@ export const ExpenseSection = ({ expenses, onExpenseChange }: ExpenseSectionProp
     onExpenseChange(expenses.filter(item => item.id !== id))
   }
 
-  const toggleExpenseStatus = (id: string) => {
-    onExpenseChange(expenses.map(expense => 
-      expense.id === id 
-        ? { 
-            ...expense, 
-            status: expense.status === 'Pago' ? 'Pendente' : 'Pago',
-            paymentDate: expense.status === 'Pendente' ? getTodayISO() : undefined,
-            updatedAt: new Date().toISOString()
-          }
-        : expense
-    ))
-  }
 
   const editExpense = (expenseToEdit: Expense) => {
     setEditingExpense(expenseToEdit)
@@ -120,9 +104,6 @@ export const ExpenseSection = ({ expenses, onExpenseChange }: ExpenseSectionProp
     onCancel: () => void
     type: string
   }) => {
-    const status = form.watch('status')
-
-
     return (
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 p-4 border-2 border-expense-primary rounded-lg bg-red-50">
         <div>
@@ -147,11 +128,11 @@ export const ExpenseSection = ({ expenses, onExpenseChange }: ExpenseSectionProp
             </label>
             <input
               type="date"
-              {...form.register('dueDate', { required: 'Vencimento é obrigatório' })}
+              {...form.register('deadline', { required: 'Vencimento é obrigatório' })}
               className="input-field"
             />
-            {form.formState.errors.dueDate && (
-              <p className="text-red-600 text-sm mt-1">{form.formState.errors.dueDate.message}</p>
+            {form.formState.errors.deadline && (
+              <p className="text-red-600 text-sm mt-1">{form.formState.errors.deadline.message}</p>
             )}
           </div>
 
@@ -165,19 +146,6 @@ export const ExpenseSection = ({ expenses, onExpenseChange }: ExpenseSectionProp
             </select>
           </div>
         </div>
-
-        {status === 'Pago' && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Data Pagamento
-            </label>
-            <input
-              type="date"
-              {...form.register('paymentDate')}
-              className="input-field"
-            />
-          </div>
-        )}
 
         <div className="grid grid-cols-2 gap-4">
           <div>
@@ -216,7 +184,7 @@ export const ExpenseSection = ({ expenses, onExpenseChange }: ExpenseSectionProp
         <ReceiptUpload
           expenseDescription={form.getValues('description')}
           expenseAmount={form.getValues('amount') || undefined}
-          expenseDate={form.getValues('dueDate')}
+          expenseDate={formatDateToBR(form.getValues('deadline'))}
         />
 
         <div className="flex space-x-2">
@@ -257,24 +225,20 @@ export const ExpenseSection = ({ expenses, onExpenseChange }: ExpenseSectionProp
                   <span className="font-medium text-gray-800">{expense.description}</span>
                 </div>
                 <div className="text-sm text-gray-600 mt-1">
-                  Vencimento: {formatDate(expense.dueDate)}
-                  {expense.paymentDate && ` • Pago em: ${formatDate(expense.paymentDate)}`}
+                  Vencimento: {expense.deadline}
                 </div>
                 <div className="text-sm text-gray-600">
                   {expense.paymentMethod} • {formatCurrency(expense.amount)}
                 </div>
               </div>
               <div className="flex items-center space-x-2 ml-4">
-                <button
-                  onClick={() => toggleExpenseStatus(expense.id)}
-                  className={`px-3 py-1 text-xs rounded-full font-medium transition-colors ${
-                    expense.status === 'Pago' 
-                      ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                      : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
-                  }`}
-                >
+                <div className={`px-3 py-1 text-xs rounded-full font-medium ${
+                  expense.status === 'Pago' 
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-yellow-100 text-yellow-800'
+                }`}>
                   {expense.status}
-                </button>
+                </div>
                 <button
                   onClick={() => editExpense(expense)}
                   className="text-blue-600 hover:text-blue-800 text-sm p-1 hover:bg-blue-100 rounded"

@@ -10,6 +10,10 @@ import {
   isDateOverdue,
   getDateForInput,
   getTodayISO,
+  normalizeDate,
+  formatDateToBR,
+  formatDateFromBR,
+  getTodayBR,
   getMonthRange
 } from '../dates'
 
@@ -122,6 +126,81 @@ describe('dates', () => {
     it('should return today in ISO format', () => {
       const result = getTodayISO()
       expect(result).toBe('2024-01-15')
+    })
+  })
+
+  describe('normalizeDate', () => {
+    it('should return the same date for YYYY-MM-DD format', () => {
+      const result = normalizeDate('2024-01-15')
+      expect(result).toBe('2024-01-15')
+    })
+
+    it('should handle empty strings', () => {
+      const result = normalizeDate('')
+      expect(result).toBe('')
+    })
+
+    it('should format dates consistently', () => {
+      const result = normalizeDate('2024-01-15T10:30:00')
+      expect(result).toBe('2024-01-15')
+    })
+
+    it('should handle invalid dates gracefully', () => {
+      const result = normalizeDate('invalid-date')
+      expect(result).toBe('invalid-date')
+    })
+
+    it('should handle HTML date input values correctly', () => {
+      // HTML date inputs return YYYY-MM-DD strings that should stay as-is
+      const result = normalizeDate('2024-12-25')
+      expect(result).toBe('2024-12-25')
+    })
+
+    it('should parse YYYY-MM-DD dates using local timezone', () => {
+      // This ensures the date doesn't shift due to UTC conversion
+      const result = normalizeDate('2024-01-15')
+      expect(result).toBe('2024-01-15')
+    })
+  })
+
+  describe('formatDateToBR', () => {
+    it('should convert YYYY-MM-DD to dd/MM/yyyy', () => {
+      const result = formatDateToBR('2024-01-15')
+      expect(result).toBe('15/01/2024')
+    })
+
+    it('should return same if already in BR format', () => {
+      const result = formatDateToBR('15/01/2024')
+      expect(result).toBe('15/01/2024')
+    })
+
+    it('should handle empty string', () => {
+      const result = formatDateToBR('')
+      expect(result).toBe('')
+    })
+  })
+
+  describe('formatDateFromBR', () => {
+    it('should convert dd/MM/yyyy to YYYY-MM-DD', () => {
+      const result = formatDateFromBR('15/01/2024')
+      expect(result).toBe('2024-01-15')
+    })
+
+    it('should handle empty string', () => {
+      const result = formatDateFromBR('')
+      expect(result).toBe('')
+    })
+
+    it('should return same for non-BR format', () => {
+      const result = formatDateFromBR('2024-01-15')
+      expect(result).toBe('2024-01-15')
+    })
+  })
+
+  describe('getTodayBR', () => {
+    it('should return today in dd/MM/yyyy format', () => {
+      const result = getTodayBR()
+      expect(result).toBe('15/01/2024')
     })
   })
 

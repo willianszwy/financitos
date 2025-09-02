@@ -53,7 +53,7 @@ describe('FinancialSummaryCard', () => {
     render(<FinancialSummaryCard summary={zeroSummary} />)
 
     const zeroValues = screen.getAllByText(/R\$.*0,00/)
-    expect(zeroValues).toHaveLength(7) // All monetary values should be R$ 0,00
+    expect(zeroValues).toHaveLength(8) // All monetary values should be R$ 0,00 (including Saldo)
   })
 
   it('should apply correct CSS classes', () => {

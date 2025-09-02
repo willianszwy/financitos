@@ -47,17 +47,24 @@ export const calculateInvestmentProjection = (currentValue: number, rate: number
 }
 
 export const calculateDueTodayExpenses = (expenses: Expense[]): Expense[] => {
-  const today = new Date().toISOString().split('T')[0]
+  const today = new Date().toLocaleDateString('pt-BR')
   return expenses.filter(expense => 
     expense.status === 'Pendente' && 
-    expense.dueDate === today
+    expense.deadline === today
   )
 }
 
 export const calculateOverdueExpenses = (expenses: Expense[]): Expense[] => {
-  const today = new Date().toISOString().split('T')[0]
-  return expenses.filter(expense => 
-    expense.status === 'Pendente' && 
-    expense.dueDate < today
-  )
+  const today = new Date()
+  return expenses.filter(expense => {
+    if (expense.status !== 'Pendente') return false
+    
+    try {
+      const [day, month, year] = expense.deadline.split('/')
+      const expenseDate = new Date(Number(year), Number(month) - 1, Number(day))
+      return expenseDate < today
+    } catch {
+      return false
+    }
+  })
 }

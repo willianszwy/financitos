@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, TrendingUp, Edit2, Info } from 'lucide-react'
+import { Plus, Edit2, Info } from 'lucide-react'
 import { useForm, Controller } from 'react-hook-form'
 import { Investment } from '@/types'
 import { formatCurrency, formatPercentage } from '@/utils'
@@ -191,10 +191,6 @@ export const InvestmentSection = ({ investments, onInvestmentChange }: Investmen
                 
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <div className="flex items-center space-x-1 text-green-600">
-                      <TrendingUp className="h-4 w-4" />
-                      <span>Crescimento: {formatCurrency(investment.growth)}</span>
-                    </div>
                     <div className="text-gray-600">
                       Taxa: {formatPercentage(investment.rate)}
                     </div>

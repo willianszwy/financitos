@@ -3,6 +3,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { X } from 'lucide-react'
 import { Income } from '@/types'
 import { CurrencyInput } from '@/components/common/CurrencyInput'
+import { formatDateToBR, formatDateFromBR } from '@/utils'
 
 interface EditIncomeModalProps {
   income: Income | null
@@ -13,7 +14,7 @@ interface EditIncomeModalProps {
 
 interface IncomeFormData {
   source: string
-  date: string
+  deadline: string
   amount: string
 }
 
@@ -24,7 +25,7 @@ export const EditIncomeModal = ({ income, isOpen, onClose, onSave }: EditIncomeM
     if (income && isOpen) {
       reset({
         source: income.source,
-        date: income.date,
+        deadline: formatDateFromBR(income.deadline),
         amount: income.amount.toString()
       })
     }
@@ -36,7 +37,7 @@ export const EditIncomeModal = ({ income, isOpen, onClose, onSave }: EditIncomeM
     const updatedIncome: Income = {
       ...income,
       source: data.source,
-      date: data.date,
+      deadline: formatDateToBR(data.deadline),
       amount: typeof data.amount === 'string' 
         ? parseFloat(data.amount.replace(/[^\d.,]/g, '').replace(',', '.')) || 0
         : data.amount,
@@ -84,11 +85,11 @@ export const EditIncomeModal = ({ income, isOpen, onClose, onSave }: EditIncomeM
             </label>
             <input
               type="date"
-              {...register('date', { required: 'Data é obrigatória' })}
+              {...register('deadline', { required: 'Data é obrigatória' })}
               className="input-field"
             />
-            {errors.date && (
-              <p className="text-red-600 text-sm mt-1">{errors.date.message}</p>
+            {errors.deadline && (
+              <p className="text-red-600 text-sm mt-1">{errors.deadline.message}</p>
             )}
           </div>
 
