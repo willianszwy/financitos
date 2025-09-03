@@ -49,7 +49,9 @@ describe('DataManagement', () => {
       const exportButton = screen.getByText('Exportar Dados')
       fireEvent.click(exportButton)
 
-      expect(StorageService.exportAllData).toHaveBeenCalled()
+      await waitFor(() => {
+        expect(StorageService.exportAllData).toHaveBeenCalled()
+      })
     })
 
     it('should show success message after successful export', async () => {
