@@ -1,61 +1,26 @@
 import { useState, useEffect, useCallback } from 'react'
-import { MonthlyFinancialData, ShoppingList, AppSettings, Expense } from '@/types'
+import { MonthlyFinancialData, ShoppingList, AppSettings } from '@/types'
 import { StorageService } from '@/services/storage'
-import { getPreviousMonthKey } from '@/utils/dates'
 import { calculateFinancialSummary } from '@/utils/calculations'
-import { adjustExpenseDate } from '@/utils/sorting'
-import { generateId } from '@/utils/helpers'
-
-const copyRecurrentExpensesFromPreviousMonth = (monthKey: string): Expense[] => {
-  try {
-    const previousMonth = getPreviousMonthKey(monthKey)
-    const previousData = StorageService.getMonthlyFinancialData(previousMonth)
-    
-    if (!previousData || !previousData.expenses) {
-      return []
-    }
-    
-    // Filter only recurrent expenses and copy them with adjusted dates
-    const recurrentExpenses = previousData.expenses
-      .filter(expense => expense.type === 'Recorrente')
-      .map(expense => ({
-        ...expense,
-        id: generateId(), // New ID for the copied expense
-        deadline: adjustExpenseDate(expense.deadline, monthKey),
-        status: 'Pendente' as const, // Reset status to pending
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }))
-    
-    return recurrentExpenses
-  } catch (error) {
-    console.error('Error copying recurrent expenses:', error)
-    return []
-  }
-}
 
 export const useFinancialData = (monthKey: string) => {
   const [data, setData] = useState<MonthlyFinancialData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [recurrentExpensesCopied, setRecurrentExpensesCopied] = useState(false)
 
   const loadData = useCallback(async () => {
     setLoading(true)
     setError(null)
-    setRecurrentExpensesCopied(false)
     
     try {
       let financialData = StorageService.getMonthlyFinancialData(monthKey)
       
       if (!financialData) {
         // Create empty data structure for new months
-        const copiedRecurrentExpenses = copyRecurrentExpensesFromPreviousMonth(monthKey)
-        
         financialData = {
           month: monthKey,
           income: [],
-          expenses: copiedRecurrentExpenses,
+          expenses: [],
           investments: [],
           summary: {
             totalIncome: 0,
@@ -67,23 +32,6 @@ export const useFinancialData = (monthKey: string) => {
             cdiTotal: 0,
             netBalance: 0
           }
-        }
-        
-        // Auto-save the new month data with copied recurrent expenses
-        if (copiedRecurrentExpenses.length > 0) {
-          const summary = calculateFinancialSummary(
-            financialData.income,
-            financialData.expenses,
-            financialData.investments
-          )
-          
-          const dataToSave = {
-            ...financialData,
-            summary
-          }
-          
-          StorageService.saveMonthlyFinancialData(dataToSave)
-          setRecurrentExpensesCopied(true)
         }
       }
       
@@ -148,7 +96,6 @@ export const useFinancialData = (monthKey: string) => {
     data,
     loading,
     error,
-    recurrentExpensesCopied,
     updateIncome,
     updateExpenses,
     updateInvestments,

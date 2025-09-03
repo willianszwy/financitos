@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { Plus, Edit2 } from 'lucide-react'
+import { Plus, Edit2, Download } from 'lucide-react'
 import { useForm, Controller } from 'react-hook-form'
 import { Expense } from '@/types'
-import { formatCurrency, getTodayBR, formatDateToBR, formatDateFromBR } from '@/utils'
+import { formatCurrency, getTodayBR, formatDateToBR, formatDateFromBR, getPreviousMonthKey } from '@/utils'
 import { generateId } from '@/utils/helpers'
-import { sortByDateAscending } from '@/utils/sorting'
+import { sortByDateAscending, adjustExpenseDate } from '@/utils/sorting'
+import { StorageService } from '@/services/storage'
 import { CurrencyInput } from '@/components/common/CurrencyInput'
 import { ReceiptUpload } from '@/components/common/ReceiptUpload'
 import { EditExpenseModal } from '@/components/modals/EditExpenseModal'
@@ -13,6 +14,7 @@ import { CoinIcon } from '@/components/common/CoinIcon'
 interface ExpenseSectionProps {
   expenses: Expense[]
   onExpenseChange: (expenses: Expense[]) => void
+  currentMonth: string
 }
 
 interface ExpenseFormData {
@@ -23,10 +25,11 @@ interface ExpenseFormData {
   amount: number
 }
 
-export const ExpenseSection = ({ expenses, onExpenseChange }: ExpenseSectionProps) => {
+export const ExpenseSection = ({ expenses, onExpenseChange, currentMonth }: ExpenseSectionProps) => {
   const [isAddingRecurrent, setIsAddingRecurrent] = useState(false)
   const [isAddingUnique, setIsAddingUnique] = useState(false)
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null)
+  const [isImporting, setIsImporting] = useState(false)
 
   const recurrentForm = useForm<ExpenseFormData>({
     defaultValues: {
@@ -100,6 +103,62 @@ export const ExpenseSection = ({ expenses, onExpenseChange }: ExpenseSectionProp
         ? { ...item, status: item.status === 'Pago' ? 'Pendente' : 'Pago', updatedAt: new Date().toISOString() }
         : item
     ))
+  }
+
+  const handleImportRecurrences = () => {
+    setIsImporting(true)
+    
+    try {
+      const previousMonth = getPreviousMonthKey(currentMonth)
+      const previousData = StorageService.getMonthlyFinancialData(previousMonth)
+      
+      if (!previousData || !previousData.expenses) {
+        return
+      }
+      
+      // Filter only recurrent expenses from previous month
+      const previousRecurrentExpenses = previousData.expenses.filter(expense => expense.type === 'Recorrente')
+      
+      if (previousRecurrentExpenses.length === 0) {
+        return
+      }
+      
+      // Get current recurrent expenses for duplication check
+      const currentRecurrentExpenses = expenses.filter(expense => expense.type === 'Recorrente')
+      
+      // Filter out expenses that already exist in current month (by description and amount)
+      const newRecurrentExpenses = previousRecurrentExpenses.filter(prevExpense => {
+        return !currentRecurrentExpenses.some(currentExpense => 
+          currentExpense.description.toLowerCase().trim() === prevExpense.description.toLowerCase().trim() &&
+          Math.abs(currentExpense.amount - prevExpense.amount) < 0.01
+        )
+      }).map(expense => ({
+        ...expense,
+        id: generateId(),
+        deadline: adjustExpenseDate(expense.deadline, currentMonth),
+        status: 'Pendente' as const,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }))
+      
+      if (newRecurrentExpenses.length > 0) {
+        onExpenseChange([...expenses, ...newRecurrentExpenses])
+      }
+    } catch (error) {
+      console.error('Error importing recurrent expenses:', error)
+    } finally {
+      setIsImporting(false)
+    }
+  }
+
+  const canImportRecurrences = () => {
+    try {
+      const previousMonth = getPreviousMonthKey(currentMonth)
+      const previousData = StorageService.getMonthlyFinancialData(previousMonth)
+      return previousData && previousData.expenses && previousData.expenses.some(expense => expense.type === 'Recorrente')
+    } catch {
+      return false
+    }
   }
 
   const ExpenseForm = ({ 
@@ -282,6 +341,28 @@ export const ExpenseSection = ({ expenses, onExpenseChange }: ExpenseSectionProp
             <span>🔄</span>
             <span>SAÍDAS RECORRENTES</span>
           </h2>
+          <button
+            onClick={handleImportRecurrences}
+            disabled={!canImportRecurrences() || isImporting}
+            className={`flex items-center space-x-2 px-3 py-1 rounded-lg text-sm font-medium transition-all duration-200 ${
+              canImportRecurrences() && !isImporting
+                ? 'bg-blue-100 text-blue-800 hover:bg-blue-200 hover:scale-105' 
+                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            }`}
+            title={canImportRecurrences() ? 'Importar recorrências do mês anterior' : 'Nenhuma recorrência disponível no mês anterior'}
+          >
+            {isImporting ? (
+              <>
+                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-800"></div>
+                <span>Importando...</span>
+              </>
+            ) : (
+              <>
+                <Download className="h-4 w-4" />
+                <span>Importar Recorrências</span>
+              </>
+            )}
+          </button>
         </div>
 
         {/* Add Recurrent Expense Form */}

@@ -14,7 +14,6 @@ export const FinancitosPage = () => {
     data: financialData, 
     loading, 
     error, 
-    recurrentExpensesCopied,
     updateIncome, 
     updateExpenses, 
     updateInvestments 
@@ -96,21 +95,6 @@ export const FinancitosPage = () => {
         </div>
       </div>
 
-      {/* Recurrent Expenses Copied Notification */}
-      {recurrentExpensesCopied && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="flex items-center space-x-2 text-blue-800">
-            <span>ℹ️</span>
-            <div>
-              <div className="font-medium">Saídas recorrentes copiadas!</div>
-              <div className="text-sm">
-                As saídas recorrentes do mês anterior foram copiadas automaticamente para este mês com status "Pendente".
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Financial Summary */}
       <FinancialSummaryCard summary={financialData.summary} />
 
@@ -124,6 +108,7 @@ export const FinancitosPage = () => {
       <ExpenseSection 
         expenses={financialData.expenses}
         onExpenseChange={updateExpenses}
+        currentMonth={currentMonth}
       />
 
       {/* Investment Section */}
